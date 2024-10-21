@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 mod time_on_air;
-use time_on_air::{Bandwidth, LoRa};
+pub use time_on_air::{Bandwidth, LoRa};
 pub mod gui;
 
 
@@ -11,7 +11,7 @@ async fn main() {
         clear_background(BLACK);
         
         let center = Vec2::new(screen_width() / 2.0, screen_height() / 2.0);
-        gui::draw_polygon(center, 100.0, 6, WHITE); // Example: draws a hexagon
+        gui::draw_wave(center, (get_time() * 10.0) as f32, 25.0, 6, WHITE); // Example: draws a hexagon
 
         next_frame().await;
     }
