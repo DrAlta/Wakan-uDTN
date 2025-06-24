@@ -5,3 +5,13 @@ edition = "2021"
 
 [dependencies]
 macroquad = "0.4.13"
+serde = { version = "1.0", features = ["derive"] }
+serde_jsonrc = "0.1.0"
+ghx_constrained_delaunay = "0.2.0"
+rand = "0.9.1"
+qol = { version = "0.1.19", git = "https://github.com/DrAlta/rust_quality_of_life.git"}
+ordered-f32 = { version = "0.1.11", git = "https://github.com/DrAlta/rust-ordered-f32.git"}
+
+[features]
+default = ["error"]
+error = []
