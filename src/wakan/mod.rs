@@ -1,4 +1,5 @@
 mod sim;
+pub use sim::WakamSim;
 mod wakan_node;
 pub use wakan_node::{WakanNode, WakanPacket};
 mod wireless_node;

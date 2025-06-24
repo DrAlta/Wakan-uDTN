@@ -19,9 +19,9 @@ const SCALE: f32 = 1.0;
 
 pub struct WakamSim<P, N: WirelessNode<P>> {
     // Represents the simulation's network topology and node states.
-    graph: Graph<P, N>,
+    pub graph: Graph<P, N>,
     // Queue of packets that are scheduled to be received by a node at a specific time.
-    scheduled_receptions: Vec<(
+    pub scheduled_receptions: Vec<(
         TransmitterNodeId,
         ReceiverNodeId,
         ScheduledReceptionTime,
@@ -129,7 +129,7 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 logy!("error", "could get coord on node{receiver}");
                 continue;
             };
-            for (scheduled_transmition_time, packet, radio) in new_transmittions {
+            for (scheduled_transmition_time, packet, _radio) in new_transmittions {
                 let Some(neighbor_ids) = graph.outbound_neighbor_ids(&receiver) else {
                     logy!("error", "could get outbound neighbors of {receiver}");
                     continue 'receivers;
@@ -153,5 +153,14 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 }
             }
         } // end looping over receptions
+    }
+    pub fn new(graph: Graph<P, N>) -> Self {
+        Self {
+            graph,
+            scheduled_receptions: Vec::new(),
+        }
+    }
+    pub fn get_graph(&self) -> &Graph<P, N> {
+        &self.graph
     }
 }
