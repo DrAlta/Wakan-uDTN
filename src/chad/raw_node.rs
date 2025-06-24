@@ -1,5 +1,8 @@
+use crate::{
+    chad::Node,
+    wakan::{NodeId, WirelessNode},
+};
 use serde::{Deserialize, Serialize};
-use crate::{chad::Node, wakan::{NodeId, WirelessNode}};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RawNode {
@@ -9,7 +12,7 @@ pub struct RawNode {
     pub outbound_links: Vec<NodeId>,
 }
 
-impl<P, N: WirelessNode<P>> From<Node<P, N>> for RawNode{
+impl<P, N: WirelessNode<P>> From<Node<P, N>> for RawNode {
     fn from(value: Node<P, N>) -> Self {
         RawNode {
             id: value.id,
@@ -20,7 +23,7 @@ impl<P, N: WirelessNode<P>> From<Node<P, N>> for RawNode{
     }
 }
 
-impl<P, N: WirelessNode<P>> From<&Node<P, N>> for RawNode{
+impl<P, N: WirelessNode<P>> From<&Node<P, N>> for RawNode {
     fn from(value: &Node<P, N>) -> Self {
         RawNode {
             id: value.id,

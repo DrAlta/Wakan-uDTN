@@ -13,5 +13,8 @@ qol = { version = "0.1.19", git = "https://github.com/DrAlta/rust_quality_of_lif
 ordered-f32 = { version = "0.1.11", git = "https://github.com/DrAlta/rust-ordered-f32.git"}
 
 [features]
-default = ["error"]
+default = ["error", "info", "trace"]
 error = []
+info = []
+trace = ["trace-wakan-sim"]
+trace-wakan-sim = []

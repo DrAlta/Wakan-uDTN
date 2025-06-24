@@ -1,10 +1,9 @@
-use std::collections::{BTreeMap, HashMap};
 use ordered_f32::OrderedF32;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::wakan::{NodeId, Radio, Time, WirelessNode};
 
 pub type Coord = (OrderedF32, OrderedF32);
-
 
 use super::Node;
 type ScheduledTransmitionTime = Time;
@@ -16,21 +15,16 @@ pub struct Graph<P, N: WirelessNode<P>> {
 
 impl<P, N: WirelessNode<P>> Graph<P, N> {
     pub fn tick_node(
-        &mut self, 
-        time:Time,
-        recieved_time: Time, 
-        packet: &P, 
-        radio: Radio,
-        node_id: &NodeId
-    ) -> Option<Vec<
-        (
-            ScheduledTransmitionTime, 
-            P, 
-            Radio
-        )
-    >> {
-        let node = self.nodes.get_mut(node_id)?;
-        Some(node.wireless_node.tick(time, vec![(recieved_time, packet, radio)]))
+        &mut self,
+        time: Time,
+        recieved_packets: Vec<(Time, &P, Radio)>,
+        node_id: &NodeId,
+    ) -> Result<Vec<(ScheduledTransmitionTime, P, Radio)>, String> {
+        let node = self
+            .nodes
+            .get_mut(node_id)
+            .ok_or(format!("Failed to get node:{node_id} as mutable."))?;
+        node.wireless_node.tick(time, recieved_packets)
     }
     // Access a node by its ID
     pub fn get_node(&self, id: &NodeId) -> Option<&Node<P, N>> {
@@ -42,11 +36,11 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         self.nodes.iter().map(|(_k, v)| v)
     }
     // Retrieve all nodes with ida
-    pub fn get_nodes(&self) -> &BTreeMap< NodeId, Node<P, N>> {
+    pub fn get_nodes(&self) -> &BTreeMap<NodeId, Node<P, N>> {
         &self.nodes
     }
 
-    pub fn nodes_coord(&self, node_id: &NodeId)-> Option<Coord> {
+    pub fn nodes_coord(&self, node_id: &NodeId) -> Option<Coord> {
         let node = self.get_node(node_id)?;
         Some((node.x, node.y))
     }
@@ -66,23 +60,16 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             .unwrap_or(false)
     }
     pub fn outbound_neighbor_ids(&self, id: &NodeId) -> Option<&Vec<NodeId>> {
-        Some(
-            &self.get_node(id)?
-                .outbound_links
-        )
+        Some(&self.get_node(id)?.outbound_links)
     }
-    // Get all 
+    // Get all
     pub fn outbound_neighbors(&self, id: &NodeId) -> Option<Vec<&Node<P, N>>> {
         Some(
             self.get_node(id)?
                 .outbound_links
                 .iter()
-                .filter_map(
-                    |node_id| {
-                        self.get_node(node_id)
-                    }
-                )
-                .collect()
+                .filter_map(|node_id| self.get_node(node_id))
+                .collect(),
         )
     }
     pub fn inbound_neighbors(&self, id: &NodeId) -> Option<Vec<&Node<P, N>>> {
@@ -90,12 +77,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             self.get_node(id)?
                 .inbound_links
                 .iter()
-                .filter_map(
-                    |node_id| {
-                        self.get_node(node_id)
-                    }
-                )
-                .collect()
+                .filter_map(|node_id| self.get_node(node_id))
+                .collect(),
         )
     }
 }
@@ -107,13 +90,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         for raw in &raw_nodes {
             nodes_map.insert(
                 raw.id,
-                Node::new(
-                    raw.id,
-                    raw.x,
-                    raw.y,
-                    raw.outbound_links.clone(),
-                    Vec::new(),
-                ),
+                Node::new(raw.id, raw.x, raw.y, raw.outbound_links.clone(), Vec::new()),
             );
         }
 
@@ -135,8 +112,6 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
 
     pub fn to_json_string(&self) -> String {
         let raw_nodes = self.to_raw_nodes();
-        serde_jsonrc::to_string_pretty(&raw_nodes)
-            .expect("Failed to serialize nodes to JSON")
+        serde_jsonrc::to_string_pretty(&raw_nodes).expect("Failed to serialize nodes to JSON")
     }
-
 }

@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
-use ordered_f32::OrderedF32;
 use crate::wakan::{NodeId, WirelessNode};
+use ordered_f32::OrderedF32;
+use std::marker::PhantomData;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Node<P, N: WirelessNode<P>> {
@@ -22,6 +22,14 @@ impl<P, N: WirelessNode<P>> Node<P, N> {
         inbound_links: Vec<NodeId>,
     ) -> Self {
         let wireless_node = WirelessNode::new(id);
-        Node { id, wireless_node, x: x.into(), y: y.into(), outbound_links, inbound_links, phantom: PhantomData }
+        Node {
+            id,
+            wireless_node,
+            x: x.into(),
+            y: y.into(),
+            outbound_links,
+            inbound_links,
+            phantom: PhantomData,
+        }
     }
 }

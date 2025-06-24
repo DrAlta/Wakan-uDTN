@@ -1,9 +1,12 @@
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 
 use ordered_f32::OrderedF32;
-use qol::logy;
+use qol::{logy, PushOrInsert};
 
-use crate::{chad::Graph, wakan::{NodeId, Radio, Time, WirelessNode}};
+use crate::{
+    chad::Graph,
+    wakan::{NodeId, Radio, Time, WirelessNode},
+};
 
 type ScheduledReceptionTime = Time;
 type ReceiverNodeId = NodeId;
@@ -14,53 +17,141 @@ const SCALE: f32 = 1.0;
 #[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 
-pub struct WakamSim<P, N: WirelessNode<P>>{
+pub struct WakamSim<P, N: WirelessNode<P>> {
+    // Represents the simulation's network topology and node states.
     graph: Graph<P, N>,
-    scheduled_receptions: Vec::<(
+    // Queue of packets that are scheduled to be received by a node at a specific time.
+    scheduled_receptions: Vec<(
         TransmitterNodeId,
         ReceiverNodeId,
-        ScheduledReceptionTime, 
-        Rc<P>, 
+        ScheduledReceptionTime,
+        Rc<P>,
         Radio,
-    )>
+    )>,
 }
-impl<P, N: WirelessNode<P>> WakamSim<P, N>{
-    pub fn tick(&mut self, time:Time) {
-        let WakamSim { graph, scheduled_receptions } = self;
-        
-        'receptions: for _ in 0..100 {
-            scheduled_receptions.sort_by(|
-                (_a_transmitter, _a_receiver,a_time, _a_packet, _a_radio), 
-                (_b_transmitter, _b_receiver,b_time, _b_packet, _b_radio)
-                |{
+impl<P, N: WirelessNode<P>> WakamSim<P, N> {
+    /// This function represents a single simulation step at the given time.
+    pub fn tick(&mut self, time: Time) {
+        let WakamSim {
+            graph,
+            scheduled_receptions,
+        } = self;
+
+        // Create an empty queue of packets arriving per node.
+        let mut queues = HashMap::<NodeId, Vec<(Time, Rc<P>, Radio)>>::new();
+
+        // Process up to 100 receptions per tick.
+        for _ in 0..100 {
+            // Sort receptions by scheduled time, in descending order (to pop earliest last).
+            scheduled_receptions.sort_by(
+                |(_a_transmitter, _a_receiver, a_time, _a_packet, _a_radio),
+                 (_b_transmitter, _b_receiver, b_time, _b_packet, _b_radio)| {
                     b_time.cmp(a_time)
-                }
+                },
             );
-            let Some((_transmitter, _receiver, recieved_time, _packet, _radio)) = scheduled_receptions.last() else{
-                return
+
+            // Peek at the last item (earliest time due to sort order).
+            let Some((_transmitter, _receiver, recieved_time, _packet, _radio)) =
+                scheduled_receptions.last()
+            else {
+                logy!(
+                    "trace-wakan-sim",
+                    "No packets left exiting reception sorting loop."
+                );
+                break;
             };
+
             if recieved_time > &time {
-                return
+                logy!(
+                    "trace-wakan-sim",
+                    "finished sorting all receptions upto now{time}"
+                );
+                break;
             };
-            let (_transmitter, receiver, recieved_time, shared_packet, radio) = scheduled_receptions.pop().expect("we checked that is had an item so it shoulf still be there");
-            let packet = shared_packet.as_ref();
-            let Some(new_transmittions) = graph.tick_node(time, recieved_time, packet, radio, &receiver) else {
-                continue;
+
+            // Pop the reception and add it to the receiver's queue.
+            let (_transmitter, receiver, recieved_time, shared_packet, radio) =
+                scheduled_receptions
+                    .pop()
+                    .expect("we checked that is had an item so it shoulf still be there");
+            queues.push_or_insert(receiver, (recieved_time, shared_packet, radio));
+        }
+
+        // Iterate over each node that had packets delivered.
+        'receivers: for (receiver, x) in queues.into_iter() {
+            let count_of_received_packets = x.len();
+            // we need to do some dancing to get the &P needed to ticking from the Rc<P>
+            // These two Vecs separate values that must be retained (Rc<P>)
+            // vs values we can move (time, radio).
+            let mut a = Vec::new();
+            // this keeps the Rc<P>s alive long enough to pass them to the node.tick()
+            let mut b = Vec::new();
+
+            // Split packet tuples into movable (a) and cloneable (b) parts.
+            x.into_iter()
+                .for_each(|(recieved_time, shared_packet, radio)| {
+                    a.push((recieved_time, radio));
+                    b.push(shared_packet)
+                });
+
+            // Zip together time, radio, and a reference to the packet content.
+            let recieved_packets = a
+                .into_iter()
+                .zip(b.iter())
+                .map(|((time, radio), shared_packet)| (time, shared_packet.as_ref(), radio))
+                .collect();
+
+            // Simulate this node’s logic for processing received packets.
+            let new_transmittions = match graph.tick_node(time, recieved_packets, &receiver) {
+                Ok(ok) => {
+                    logy!(
+                        "info",
+                        "node:{receiver} recieved {count_of_received_packets} and sent {}",
+                        ok.len()
+                    );
+                    ok
+                }
+                Err(err) => {
+                    logy!(
+                        "info",
+                        "{count_of_received_packets} packets where send to node:{receiver} but it failed with err:{err:?}",
+                    );
+                    continue;
+                }
             };
+            logy!(
+                "info",
+                "node:{receiver} recieved {count_of_received_packets} and sent {}",
+                new_transmittions.len()
+            );
+
             let Some(coord) = graph.nodes_coord(&receiver) else {
                 logy!("error", "could get coord on node{receiver}");
                 continue;
             };
-            for ( scheduled_transmition_time, packet, radio ) in new_transmittions {
+            for (scheduled_transmition_time, packet, radio) in new_transmittions {
                 let Some(neighbor_ids) = graph.outbound_neighbor_ids(&receiver) else {
-                    continue 'receptions
+                    logy!("error", "could get outbound neighbors of {receiver}");
+                    continue 'receivers;
                 };
                 let shared_packet = Rc::new(packet);
                 for neighbor_id in neighbor_ids {
-                    let recieved_time = scheduled_transmition_time + Into::<u64>::into(graph.distance_to_node(&coord, neighbor_id).unwrap_or(OrderedF32::ONE) * SCALE);
-                    scheduled_receptions.push((receiver, *neighbor_id, recieved_time, shared_packet.clone(), 0))
+                    let recieved_time = scheduled_transmition_time
+                        + Into::<u64>::into(
+                            graph
+                                .distance_to_node(&coord, neighbor_id)
+                                .unwrap_or(OrderedF32::ONE)
+                                * SCALE,
+                        );
+                    scheduled_receptions.push((
+                        receiver,
+                        *neighbor_id,
+                        recieved_time,
+                        shared_packet.clone(),
+                        0,
+                    ))
                 }
             }
-        }// end looping over receptions
+        } // end looping over receptions
     }
 }

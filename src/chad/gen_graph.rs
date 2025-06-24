@@ -1,15 +1,21 @@
-use ghx_constrained_delaunay::{triangulation::TriangulationConfiguration, triangulation_from_2d_vertices, types::Vertex as Point};
+use ghx_constrained_delaunay::{
+    triangulation::TriangulationConfiguration, triangulation_from_2d_vertices,
+    types::Vertex as Point,
+};
 use rand::Rng;
 
-use crate::{chad::{Graph, RawNode}, wakan::{NodeId, WirelessNode}};
+use crate::{
+    chad::{Graph, RawNode},
+    wakan::{NodeId, WirelessNode},
+};
 
 pub fn generate_random_graph<P, N: WirelessNode<P>>(
-    num_nodes: usize, 
-    width: f32, 
+    num_nodes: usize,
+    width: f32,
     height: f32,
     min_dist: f32,
 ) -> Graph<P, N> {
-    let min_dist_sqrd= min_dist * min_dist;
+    let min_dist_sqrd = min_dist * min_dist;
     let mut rng = rand::rng();
 
     // Step 1: Create RawNodes with random positions

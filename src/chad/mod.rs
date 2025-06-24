@@ -7,5 +7,3 @@ pub use node::Node;
 
 mod gen_graph;
 pub use gen_graph::generate_random_graph;
-
-
