@@ -28,12 +28,14 @@ pub async fn main() {
         clear_background(WHITE);
 
         draw_graph(sim.get_graph());
+        
         time += get_frame_time();
         if time >= TIME_PER_TICK {
             time -= TIME_PER_TICK;
+            sim.tick(sim_time);
             sim_time += 1;
         }
-        sim.tick(sim_time);
+        //assert_ne!(sim_time, 10);
         next_frame().await
     }
 }

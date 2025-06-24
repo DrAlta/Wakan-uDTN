@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc};
 
 use ordered_f32::OrderedF32;
-use qol::{logy, PushOrInsert};
+use qol::logy;
 
 use crate::{
     chad::Graph,
@@ -12,7 +12,7 @@ type ScheduledReceptionTime = Time;
 type ReceiverNodeId = NodeId;
 type TransmitterNodeId = NodeId;
 
-const SCALE: f32 = 1.0;
+const SCALE: f32 = 0.0;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -29,22 +29,26 @@ pub struct WakamSim<P, N: WirelessNode<P>> {
         Radio,
     )>,
 }
-impl<P, N: WirelessNode<P>> WakamSim<P, N> {
+impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
     /// This function represents a single simulation step at the given time.
-    pub fn tick(&mut self, time: Time) {
+    pub fn tick(&mut self, time: Time) -> Option<Time> {
         let WakamSim {
             graph,
             scheduled_receptions,
         } = self;
 
-        // ToDo I need to populate queues with all the nodes in the graph so that thay all 
-        // will be ticked.
-        // Create an empty queue of packets arriving per node.
-        todo
-        let mut queues = HashMap::<NodeId, Vec<(Time, Rc<P>, Radio)>>::new();
-
+        // Create an empty queues of packets arriving for each node.
+        let mut queues: HashMap::<NodeId, Vec<(Time, Rc<P>, Radio)>> = graph.get_node_ids()
+            .map(
+                |node_id|
+                (*node_id, Vec::new())
+            ).collect();
+        let mut next_reception = None;
         // Process up to 100 receptions per tick.
-        for _ in 0..100 {
+        for i in 0..300 {
+            if i == 299 {
+                logy!("info", "hit loop limit{:?}", scheduled_receptions.len());
+            };
             // Sort receptions by scheduled time, in descending order (to pop earliest last).
             scheduled_receptions.sort_by(
                 |(_a_transmitter, _a_receiver, a_time, _a_packet, _a_radio),
@@ -64,10 +68,15 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 break;
             };
 
+            if next_reception.is_none() {
+                next_reception = Some(*recieved_time);
+            }
+
             if recieved_time > &time {
                 logy!(
                     "trace-wakan-sim",
-                    "finished sorting all receptions upto now{time}"
+                    "finished sorting all receptions upto now{time}, next:{next_reception:?}: total:{}",
+                    scheduled_receptions.len()
                 );
                 break;
             };
@@ -77,8 +86,13 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 scheduled_receptions
                     .pop()
                     .expect("we checked that is had an item so it shoulf still be there");
-            queues.push_or_insert(receiver, (recieved_time, shared_packet, radio));
+            let Some(queue) = queues.get_mut(&receiver) else {
+                logy!("error", "there is no node with id:{receiver}, next:{next_reception:?}");
+                continue;
+            };
+            queue.push((recieved_time, shared_packet, radio));
         }
+        logy!("info", "now: {time}, next:{next_reception:?}");
 
         // Iterate over each node that had packets delivered.
         'receivers: for (receiver, x) in queues.into_iter() {
@@ -107,11 +121,13 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
             // Simulate this node’s logic for processing received packets.
             let new_transmittions = match graph.tick_node(time, recieved_packets, &receiver) {
                 Ok(ok) => {
-                    logy!(
-                        "info",
-                        "node:{receiver} recieved {count_of_received_packets} and sent {}",
-                        ok.len()
-                    );
+                    /*if (!ok.is_empty()) || count_of_received_packets != 0 {
+                        logy!(
+                            "info",
+                            "node:{receiver} recieved {count_of_received_packets} and sent {}",
+                            ok.len()
+                        );
+                    };*/
                     ok
                 }
                 Err(err) => {
@@ -122,11 +138,6 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                     continue;
                 }
             };
-            logy!(
-                "info",
-                "node:{receiver} recieved {count_of_received_packets} and sent {}",
-                new_transmittions.len()
-            );
 
             let Some(coord) = graph.nodes_coord(&receiver) else {
                 logy!("error", "could get coord on node{receiver}");
@@ -139,6 +150,9 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 };
                 let shared_packet = Rc::new(packet);
                 for neighbor_id in neighbor_ids {
+                    if scheduled_transmition_time < time {
+                        logy!("info", "{shared_packet:?}");
+                    };
                     let recieved_time = scheduled_transmition_time
                         + Into::<u64>::into(
                             graph
@@ -156,6 +170,7 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
                 }
             }
         } // end looping over receptions
+        next_reception
     }
     pub fn new(graph: Graph<P, N>) -> Self {
         Self {

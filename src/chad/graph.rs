@@ -1,5 +1,5 @@
 use ordered_f32::OrderedF32;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{btree_map::Keys, BTreeMap, HashMap};
 
 use crate::wakan::{NodeId, Radio, Time, WirelessNode};
 
@@ -38,6 +38,9 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
     // Retrieve all nodes with ida
     pub fn get_nodes(&self) -> &BTreeMap<NodeId, Node<P, N>> {
         &self.nodes
+    }
+    pub fn get_node_ids(&self) -> Keys<'_, NodeId, Node<P, N>> {
+        self.nodes.keys()
     }
 
     pub fn nodes_coord(&self, node_id: &NodeId) -> Option<Coord> {
