@@ -37,7 +37,10 @@ impl<P, N: WirelessNode<P>> WakamSim<P, N> {
             scheduled_receptions,
         } = self;
 
+        // ToDo I need to populate queues with all the nodes in the graph so that thay all 
+        // will be ticked.
         // Create an empty queue of packets arriving per node.
+        todo
         let mut queues = HashMap::<NodeId, Vec<(Time, Rc<P>, Radio)>>::new();
 
         // Process up to 100 receptions per tick.
