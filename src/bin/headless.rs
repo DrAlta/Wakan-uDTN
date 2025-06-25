@@ -22,6 +22,9 @@ pub fn main() {
     loop {
         sim.tick(sim_time);
         sim_time += 1;
-        assert_ne!( sim_time, 5)
+        //assert_ne!( sim_time, 5)
+        if sim.scheduled_receptions.is_empty() {
+            break;
+        }
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use qol::logy;
 
 use crate::wakan::{wireless_nodes::flood_node::PacketId, FloodPacket, NodeId, Radio, RecievedTime, ScheduledTransmitionTime, Time, WirelessNode};
@@ -6,7 +8,7 @@ use crate::wakan::{wireless_nodes::flood_node::PacketId, FloodPacket, NodeId, Ra
 pub struct FloodNode {
     id: u64,
     count: u8,
-    seen: Vec::<PacketId>
+    seen: BTreeSet::<PacketId>
 }
 
 impl WirelessNode<FloodPacket> for FloodNode {
@@ -20,6 +22,7 @@ impl WirelessNode<FloodPacket> for FloodNode {
                 logy!("trace-flood-node", "now == 0 node 1 is starting");
                 let count = self.count;
                 self.count =self.count.wrapping_add(1);
+                self.seen.insert(0);
                 Ok(vec![(
                     now + 1 + (count as Time % 8),
                     FloodPacket::new(self.id, 0),
@@ -34,10 +37,11 @@ impl WirelessNode<FloodPacket> for FloodNode {
             let send_packets: Vec<(u64, FloodPacket, u8)> = recieved_packets.into_iter()
             .filter_map(
                 |(_,packet,_)|{
-                    if packet.0.contains(&self.id) {
+                    if self.seen.contains(&packet.1) {
                         logy!("trace-flood-node", "filtered out packet{}", packet.1);
                         return None;
                     };
+                    self.seen.insert(packet.1);
                     let mut new_packet = packet.clone();
                     new_packet.push(self.id);
                     Some((
@@ -56,6 +60,6 @@ impl WirelessNode<FloodPacket> for FloodNode {
     }
 
     fn new(id: NodeId) -> Self {
-        Self { id, count: 0, seen: Vec::new() }
+        Self { id, count: 0, seen: BTreeSet::new() }
     }
 }
