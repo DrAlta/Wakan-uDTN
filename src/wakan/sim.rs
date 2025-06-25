@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, i32, rc::Rc};
 
 use ordered_f32::OrderedF32;
 use qol::logy;
@@ -44,9 +44,11 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                 (*node_id, Vec::new())
             ).collect();
         let mut next_reception = None;
+        let mut count_of_transmissions = 0;
         // Process up to 100 receptions per tick.
-        for i in 0..300 {
-            if i == 299 {
+        let limit = i32::MAX;
+        for i in 0..limit {
+            if i == limit - 1 {
                 logy!("info", "hit loop limit{:?}", scheduled_receptions.len());
             };
             // Sort receptions by scheduled time, in descending order (to pop earliest last).
@@ -117,9 +119,8 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                 .zip(b.iter())
                 .map(|((time, radio), shared_packet)| (time, shared_packet.as_ref(), radio))
                 .collect();
-
             // Simulate this node’s logic for processing received packets.
-            let new_transmittions = match graph.tick_node(time, recieved_packets, &receiver) {
+            let new_transmissions = match graph.tick_node(time, recieved_packets, &receiver) {
                 Ok(ok) => {
                     /*if (!ok.is_empty()) || count_of_received_packets != 0 {
                         logy!(
@@ -138,22 +139,24 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                     continue;
                 }
             };
+            // add the number of transmissions to the count
+            count_of_transmissions += new_transmissions.len();
 
             let Some(coord) = graph.nodes_coord(&receiver) else {
                 logy!("error", "could get coord on node{receiver}");
                 continue;
             };
-            for (scheduled_transmition_time, packet, _radio) in new_transmittions {
+            for (scheduled_transmission_time, packet, _radio) in new_transmissions {
                 let Some(neighbor_ids) = graph.outbound_neighbor_ids(&receiver) else {
                     logy!("error", "could get outbound neighbors of {receiver}");
                     continue 'receivers;
                 };
                 let shared_packet = Rc::new(packet);
                 for neighbor_id in neighbor_ids {
-                    if scheduled_transmition_time < time {
+                    if scheduled_transmission_time < time {
                         logy!("info", "{shared_packet:?}");
                     };
-                    let recieved_time = scheduled_transmition_time
+                    let recieved_time = scheduled_transmission_time
                         + Into::<u64>::into(
                             graph
                                 .distance_to_node(&coord, neighbor_id)
@@ -170,6 +173,7 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                 }
             }
         } // end looping over receptions
+        logy!("info", "{count_of_transmissions} transmissions");
         next_reception
     }
     pub fn new(graph: Graph<P, N>) -> Self {

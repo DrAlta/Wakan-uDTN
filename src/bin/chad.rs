@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 use std::env;
 
 use wakan_sim::chad::{generate_random_graph, Graph, RawNode};
-use wakan_sim::wakan::{Time, WakamSim, WakanNode, WakanPacket, WirelessNode};
+use wakan_sim::wakan::{Time, WakamSim, FloodNode, FloodPacket, WirelessNode};
 
 const TIME_PER_TICK: f32 = 0.5;
 
@@ -15,7 +15,7 @@ pub async fn main() {
         let raw_nodes: Vec<RawNode> =
             serde_jsonrc::from_str(&json_str).expect("Invalid JSON format");
 
-        Graph::<WakanPacket, WakanNode>::from_raw_nodes(raw_nodes)
+        Graph::<FloodPacket, FloodNode>::from_raw_nodes(raw_nodes)
     } else {
         generate_random_graph(25, screen_width(), screen_height(), 15.0)
     };

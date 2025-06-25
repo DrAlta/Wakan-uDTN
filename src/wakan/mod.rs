@@ -1,9 +1,9 @@
 mod sim;
 pub use sim::WakamSim;
-mod wakan_node;
-pub use wakan_node::{WakanNode, WakanPacket};
 mod wireless_node;
 pub use wireless_node::WirelessNode;
+mod wireless_nodes;
+pub use wireless_nodes::{BeepyNode, BeepyPacket, FloodNode, FloodPacket/*, WakanNode*/};
 
 pub type NodeId = u64;
 pub type Radio = u8;
