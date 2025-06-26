@@ -1,7 +1,7 @@
 use std::env;
 
 use wakan_sim::chad::{generate_random_graph, Graph, RawNode};
-use wakan_sim::wakan::{Time, WakamSim, FloodNode, FloodPacket};
+use wakan_sim::wakan::{FloodNode, FloodPacket, Time, WakamSim};
 
 pub fn main() {
     let args: Vec<String> = env::args().collect();

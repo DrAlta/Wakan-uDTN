@@ -38,11 +38,10 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
         } = self;
 
         // Create an empty queues of packets arriving for each node.
-        let mut queues: HashMap::<NodeId, Vec<(Time, Rc<P>, Radio)>> = graph.get_node_ids()
-            .map(
-                |node_id|
-                (*node_id, Vec::new())
-            ).collect();
+        let mut queues: HashMap<NodeId, Vec<(Time, Rc<P>, Radio)>> = graph
+            .get_node_ids()
+            .map(|node_id| (*node_id, Vec::new()))
+            .collect();
         let mut next_reception = None;
         let mut count_of_transmissions = 0;
         // Process up to 100 receptions per tick.
@@ -89,7 +88,10 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                     .pop()
                     .expect("we checked that is had an item so it shoulf still be there");
             let Some(queue) = queues.get_mut(&receiver) else {
-                logy!("error", "there is no node with id:{receiver}, next:{next_reception:?}");
+                logy!(
+                    "error",
+                    "there is no node with id:{receiver}, next:{next_reception:?}"
+                );
                 continue;
             };
             queue.push((recieved_time, shared_packet, radio));

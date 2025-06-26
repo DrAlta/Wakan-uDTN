@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 use std::env;
 
 use wakan_sim::chad::{generate_random_graph, Graph, RawNode};
-use wakan_sim::wakan::{Time, WakamSim, FloodNode, FloodPacket, WirelessNode};
+use wakan_sim::wakan::{FloodNode, FloodPacket, Time, WakamSim, WirelessNode};
 
 const TIME_PER_TICK: f32 = 0.5;
 
@@ -28,7 +28,7 @@ pub async fn main() {
         clear_background(WHITE);
 
         draw_graph(sim.get_graph());
-        
+
         time += get_frame_time();
         if time >= TIME_PER_TICK {
             time -= TIME_PER_TICK;
