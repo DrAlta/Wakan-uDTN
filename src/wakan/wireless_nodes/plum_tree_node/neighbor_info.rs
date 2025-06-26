@@ -1,21 +1,21 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
-use crate::wakan::{NodeId, Time};
+use crate::wakan::{NodeId, Radio, Time};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NeighborInfo {
-    pub last_seen: Time,
+    pub last_seen: BTreeMap<Radio, Time>,
     pub neighbors_of_neighbor: BTreeSet<NodeId>,
 }
 #[allow(dead_code)]
 impl NeighborInfo {
-    pub fn simple_new(last_seen: Time) -> Self {
+    pub fn simple_new(last_seen: BTreeMap<Radio, Time>) -> Self {
         Self {
             last_seen,
             neighbors_of_neighbor: BTreeSet::new(),
         }
     }
-    pub fn new(last_seen: Time, neighbors_of_neighbor: BTreeSet<u64>) -> Self {
+    pub fn new(last_seen: BTreeMap<Radio, Time>, neighbors_of_neighbor: BTreeSet<u64>) -> Self {
         Self {
             last_seen,
             neighbors_of_neighbor,

@@ -25,16 +25,16 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
     ) -> Result<Vec<Transmission<PlumTreePacket>>, String> {
         let mut transmissions = Vec::new();
 
-        for (recieved_time, packet, _radio) in recieved_packets {
+        for (recieved_time, packet, radio) in recieved_packets {
             match packet.as_ref() {
                 PlumTreePacket::Beacon { source, neighbors } => {
+                    let last_seen = BTreeMap::from([(radio, recieved_time)]);
                     match self.neighbors.get_mut(source) {
                         Some(neighbor_info) => {
-                            neighbor_info.last_seen = recieved_time;
+                            neighbor_info.last_seen = last_seen;
                             neighbor_info.neighbors_of_neighbor = neighbors.clone();
                         }
                         None => {
-                            let last_seen = recieved_time;
                             let neighbors_of_neighbor = neighbors.clone();
                             self.neighbors.insert(
                                 *source,
