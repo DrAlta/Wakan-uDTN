@@ -1,12 +1,14 @@
 use ordered_f32::OrderedF32;
-use std::collections::{btree_map::Keys, BTreeMap, HashMap};
+use std::{
+    collections::{btree_map::Keys, BTreeMap, HashMap},
+    rc::Rc,
+};
 
-use crate::wakan::{NodeId, Radio, Time, WirelessNode};
+use crate::wakan::{NodeId, Radio, Time, Transmission, WirelessNode};
 
 pub type Coord = (OrderedF32, OrderedF32);
 
 use super::Node;
-type ScheduledTransmitionTime = Time;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Graph<P, N: WirelessNode<P>> {
@@ -17,9 +19,9 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
     pub fn tick_node(
         &mut self,
         time: Time,
-        recieved_packets: Vec<(Time, &P, Radio)>,
+        recieved_packets: Vec<(Time, Rc<P>, Radio)>,
         node_id: &NodeId,
-    ) -> Result<Vec<(ScheduledTransmitionTime, P, Radio)>, String> {
+    ) -> Result<Vec<Transmission<P>>, String> {
         let node = self
             .nodes
             .get_mut(node_id)

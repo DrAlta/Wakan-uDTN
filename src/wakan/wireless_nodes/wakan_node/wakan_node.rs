@@ -1,8 +1,8 @@
+use std::rc::Rc;
+
 use qol::logy;
 
-use crate::wakan::{
-    NodeId, Radio, RecievedTime, ScheduledTransmitionTime, Time, WakanPacket, WirelessNode,
-};
+use crate::wakan::{NodeId, Radio, RecievedTime, Time, Transmission, WakanPacket, WirelessNode};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct WakanNode {
@@ -10,21 +10,20 @@ pub struct WakanNode {
     count: u8,
 }
 impl WakanNode {
-    fn send(
-        &mut self,
-        now: Time,
-    ) -> Result<Vec<(ScheduledTransmitionTime, WakanPacket, Radio)>, String> {
+    fn send(&mut self, now: Time) -> Result<Vec<Transmission<WakanPacket>>, String> {
         let count = self.count;
         self.count = self.count.wrapping_add(1);
-        Ok(vec![(now + 1 + (count as Time % 8), (self.id, count), 0)])
+        Ok(vec![
+            (now + 1 + (count as Time % 8), (self.id, count), 0).into()
+        ])
     }
 }
 impl WirelessNode<WakanPacket> for WakanNode {
     fn tick(
         &mut self,
         now: Time,
-        recieved_packets: Vec<(RecievedTime, &WakanPacket, Radio)>,
-    ) -> Result<Vec<(ScheduledTransmitionTime, WakanPacket, Radio)>, String> {
+        recieved_packets: Vec<(RecievedTime, Rc<WakanPacket>, Radio)>,
+    ) -> Result<Vec<Transmission<WakanPacket>>, String> {
         if recieved_packets.is_empty() {
             if now == 0 {
                 logy!("trace-wakan-node", "now == 0");

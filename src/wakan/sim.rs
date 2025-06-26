@@ -5,7 +5,7 @@ use qol::logy;
 
 use crate::{
     chad::Graph,
-    wakan::{NodeId, Radio, Time, WirelessNode},
+    wakan::{NodeId, Radio, Time, Transmission, WirelessNode},
 };
 
 type ScheduledReceptionTime = Time;
@@ -99,28 +99,9 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
         logy!("info", "now: {time}, next:{next_reception:?}");
 
         // Iterate over each node that had packets delivered.
-        'receivers: for (receiver, x) in queues.into_iter() {
-            let count_of_received_packets = x.len();
-            // we need to do some dancing to get the &P needed to ticking from the Rc<P>
-            // These two Vecs separate values that must be retained (Rc<P>)
-            // vs values we can move (time, radio).
-            let mut a = Vec::new();
-            // this keeps the Rc<P>s alive long enough to pass them to the node.tick()
-            let mut b = Vec::new();
+        'receivers: for (receiver, recieved_packets) in queues.into_iter() {
+            let count_of_received_packets = recieved_packets.len();
 
-            // Split packet tuples into movable (a) and cloneable (b) parts.
-            x.into_iter()
-                .for_each(|(recieved_time, shared_packet, radio)| {
-                    a.push((recieved_time, radio));
-                    b.push(shared_packet)
-                });
-
-            // Zip together time, radio, and a reference to the packet content.
-            let recieved_packets = a
-                .into_iter()
-                .zip(b.iter())
-                .map(|((time, radio), shared_packet)| (time, shared_packet.as_ref(), radio))
-                .collect();
             // Simulate this node’s logic for processing received packets.
             let new_transmissions = match graph.tick_node(time, recieved_packets, &receiver) {
                 Ok(ok) => {
@@ -148,7 +129,12 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                 logy!("error", "could get coord on node{receiver}");
                 continue;
             };
-            for (scheduled_transmission_time, packet, _radio) in new_transmissions {
+            for Transmission {
+                when: scheduled_transmission_time,
+                packet,
+                radio: _,
+            } in new_transmissions
+            {
                 let Some(neighbor_ids) = graph.outbound_neighbor_ids(&receiver) else {
                     logy!("error", "could get outbound neighbors of {receiver}");
                     continue 'receivers;

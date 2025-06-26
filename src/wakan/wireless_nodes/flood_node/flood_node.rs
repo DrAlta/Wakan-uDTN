@@ -1,10 +1,10 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, rc::Rc};
 
 use qol::logy;
 
 use crate::wakan::{
-    wireless_nodes::flood_node::PacketId, FloodPacket, NodeId, Radio, RecievedTime,
-    ScheduledTransmitionTime, Time, WirelessNode,
+    wireless_nodes::flood_node::PacketId, FloodPacket, NodeId, Radio, RecievedTime, Time,
+    Transmission, WirelessNode,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -18,8 +18,8 @@ impl WirelessNode<FloodPacket> for FloodNode {
     fn tick(
         &mut self,
         now: Time,
-        recieved_packets: Vec<(RecievedTime, &FloodPacket, Radio)>,
-    ) -> Result<Vec<(ScheduledTransmitionTime, FloodPacket, Radio)>, String> {
+        recieved_packets: Vec<(RecievedTime, Rc<FloodPacket>, Radio)>,
+    ) -> Result<Vec<Transmission<FloodPacket>>, String> {
         if recieved_packets.is_empty() {
             if now == 0 && self.id == 1 {
                 logy!("trace-flood-node", "now == 0 node 1 is starting");
@@ -30,14 +30,15 @@ impl WirelessNode<FloodPacket> for FloodNode {
                     now + 1 + (count as Time % 8),
                     FloodPacket::new(self.id, 0),
                     0,
-                )])
+                )
+                    .into()])
             } else {
                 // we didn't receive anything and we aren't starting so send nothing
                 Ok(Vec::new())
             }
         } else {
             logy!("trace-flood-node", "recieved_packets not empty");
-            let send_packets: Vec<(u64, FloodPacket, u8)> = recieved_packets
+            let send_packets: Vec<Transmission<FloodPacket>> = recieved_packets
                 .into_iter()
                 .filter_map(|(_, packet, _)| {
                     if self.seen.contains(&packet.1) {
@@ -45,9 +46,9 @@ impl WirelessNode<FloodPacket> for FloodNode {
                         return None;
                     };
                     self.seen.insert(packet.1);
-                    let mut new_packet = packet.clone();
+                    let mut new_packet = packet.as_ref().clone();
                     new_packet.push(self.id);
-                    Some((now + 1, new_packet, 0))
+                    Some((now + 1, new_packet, 0).into())
                 })
                 .collect();
             if self.id == 1 && !send_packets.is_empty() {

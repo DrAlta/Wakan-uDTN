@@ -1,5 +1,7 @@
 mod sim;
 pub use sim::WakamSim;
+mod transmission;
+pub use transmission::Transmission;
 mod wireless_node;
 pub use wireless_node::WirelessNode;
 mod wireless_nodes;
