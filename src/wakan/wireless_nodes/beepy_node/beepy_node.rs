@@ -1,7 +1,7 @@
 use qol::logy;
 
-use crate::wakan::{NodeId, Radio, RecievedTime, ScheduledTransmitionTime, Time, WirelessNode};
 use super::BeepyPacket;
+use crate::wakan::{NodeId, Radio, RecievedTime, ScheduledTransmitionTime, Time, WirelessNode};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BeepyNode {
@@ -9,9 +9,12 @@ pub struct BeepyNode {
     count: u8,
 }
 impl BeepyNode {
-    fn send(&mut self, now: Time,) -> Result<Vec<(ScheduledTransmitionTime, BeepyPacket, Radio)>, String> {
+    fn send(
+        &mut self,
+        now: Time,
+    ) -> Result<Vec<(ScheduledTransmitionTime, BeepyPacket, Radio)>, String> {
         let count = self.count;
-        self.count =self.count.wrapping_add(1);
+        self.count = self.count.wrapping_add(1);
         Ok(vec![(
             now + 1 + (count as Time % 8),
             BeepyPacket::new(self.id, count),
@@ -26,14 +29,14 @@ impl WirelessNode<BeepyPacket> for BeepyNode {
         recieved_packets: Vec<(RecievedTime, &BeepyPacket, Radio)>,
     ) -> Result<Vec<(ScheduledTransmitionTime, BeepyPacket, Radio)>, String> {
         if recieved_packets.is_empty() {
-            if now == 0{
-                logy!("trace-wakan-node", "now == 0");
+            if now == 0 {
+                logy!("trace-beepy-node", "now == 0");
                 self.send(now)
-            }else{
+            } else {
                 Ok(Vec::new())
             }
         } else {
-            logy!("trace-wakan-node", "recieved_packets not empty");
+            logy!("trace-beepy-node", "recieved_packets not empty");
             self.send(now)
         }
     }
