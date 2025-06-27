@@ -1,7 +1,7 @@
 mod structs;
 pub use structs::{Graph, Node, NodeId, Radio, RawNode, Transmission, WakamSim};
 mod traits;
-pub use traits::{Parent, WirelessNode};
+pub use traits::{Frontend, Parent, WirelessNode};
 mod wireless_nodes;
 pub use wireless_nodes::{
     BeepyNode, BeepyPacket, FloodNode, FloodPacket, PlumTreeNode, PlumTreePacket, WakanNode,
