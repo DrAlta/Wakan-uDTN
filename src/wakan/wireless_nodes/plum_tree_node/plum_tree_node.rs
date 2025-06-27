@@ -12,9 +12,10 @@ use crate::wakan::{
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PlumTreeNode {
-    id: NodeId,
-    next_beacon: Time,
-    neighbors: BTreeMap<NodeId, NeighborInfo>,
+    pub(super) id: NodeId,
+    pub(super) next_beacon: Time,
+    pub(super) neighbors: BTreeMap<NodeId, NeighborInfo>,
+    pub(super) parent: Option<NodeId>,
 }
 
 impl WirelessNode<PlumTreePacket> for PlumTreeNode {
@@ -68,6 +69,7 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
             id,
             next_beacon,
             neighbors: BTreeMap::new(),
+            parent: None,
         }
     }
 }

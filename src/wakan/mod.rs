@@ -1,13 +1,7 @@
-mod node_id;
-pub use node_id::NodeId;
-mod radio;
-pub use radio::Radio;
-mod sim;
-pub use sim::WakamSim;
-mod transmission;
-pub use transmission::Transmission;
-mod wireless_node;
-pub use wireless_node::WirelessNode;
+mod structs;
+pub use structs::{NodeId, Radio, Transmission, WakamSim};
+mod traits;
+pub use traits::{Parent, WirelessNode};
 mod wireless_nodes;
 pub use wireless_nodes::{
     BeepyNode, BeepyPacket, FloodNode, FloodPacket, PlumTreeNode, PlumTreePacket, WakanNode,
