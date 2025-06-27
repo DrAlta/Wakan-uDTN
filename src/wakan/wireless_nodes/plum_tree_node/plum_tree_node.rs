@@ -39,6 +39,7 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
                             self.neighbors.insert(
                                 *source,
                                 NeighborInfo {
+                                    first_seen: last_seen.clone(),
                                     last_seen,
                                     neighbors_of_neighbor,
                                 },
@@ -51,21 +52,20 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
         if now >= self.next_beacon {
             self.next_beacon = gen_next_heartbeat_time(self.next_beacon);
             transmissions.push(
-                (
+                Transmission::new(
                     now + 1,
                     PlumTreePacket::new_beacon(
-                        self.id,
+                        self.id.clone(),
                         self.neighbors.keys().map(|x| *x).collect(),
                     ),
-                    0,
-                )
-                    .into(),
+                    0.into(),
+                ),
             );
         };
         Ok(transmissions)
     }
     fn new(id: NodeId) -> Self {
-        let next_beacon = gen_next_heartbeat_time(id as Time);
+        let next_beacon = gen_next_heartbeat_time(id.0 as Time);
         Self {
             id,
             next_beacon,
@@ -79,4 +79,15 @@ fn gen_next_heartbeat_time(time: Time) -> Time {
     time.hash(&mut hasher);
     let hash = hasher.finish();
     (hash % 29) as Time + 5
+}
+
+impl PlumTreeNode{
+    pub fn find_oldest_neighbor(&self) -> Option<NodeId> {
+        /*
+        let iter= &self.last_seen.iter();
+        let (mut current_node_id, current_time) = iter.next()?;
+        for (node_id, time)
+        */
+        todo!()
+    }
 }

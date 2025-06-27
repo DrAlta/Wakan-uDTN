@@ -32,7 +32,7 @@ pub fn generate_random_graph<P, N: WirelessNode<P>>(
         });
 
         if !too_close {
-            let id = raw_nodes.len() as NodeId;
+            let id = NodeId::from(raw_nodes.len());
             raw_nodes.push(RawNode {
                 id,
                 x,
@@ -58,20 +58,20 @@ pub fn generate_random_graph<P, N: WirelessNode<P>>(
     let mut edge_set = std::collections::HashSet::new();
     for indices in triangulation.triangles.iter() {
         for i in 0..3 {
-            let a = indices[i] as NodeId;
-            let b = indices[(i + 1) % 3] as NodeId;
+            let a = NodeId::from(indices[i]);
+            let b = NodeId::from(indices[(i + 1) % 3]);
             // Avoid duplicates and self-links
             if a != b {
-                edge_set.insert((a, b));
+                edge_set.insert((a.clone(), b.clone()));
                 edge_set.insert((b, a));
             }
         }
     }
 
     // Step 4: Assign outbound links
-    for &(a, b) in &edge_set {
-        raw_nodes[a as usize].outbound_links.push(b);
-        raw_nodes[b as usize].outbound_links.push(a); // Make it symmetric if desired
+    for (a, b) in &edge_set {
+        raw_nodes[a.0 as usize].outbound_links.push(b.clone());
+        raw_nodes[b.0 as usize].outbound_links.push(a.clone()); // Make it symmetric if desired
     }
 
     // Step 5: Build the full graph with inbound links

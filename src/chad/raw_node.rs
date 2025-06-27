@@ -26,7 +26,7 @@ impl<P, N: WirelessNode<P>> From<Node<P, N>> for RawNode {
 impl<P, N: WirelessNode<P>> From<&Node<P, N>> for RawNode {
     fn from(value: &Node<P, N>) -> Self {
         RawNode {
-            id: value.id,
+            id: value.id.clone(),
             x: value.x.into(),
             y: value.y.into(),
             outbound_links: value.outbound_links.clone(),

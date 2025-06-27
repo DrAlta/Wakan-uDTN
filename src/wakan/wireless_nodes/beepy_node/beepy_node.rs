@@ -7,19 +7,20 @@ use crate::wakan::{NodeId, Radio, RecievedTime, Time, Transmission, WirelessNode
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BeepyNode {
-    id: u64,
+    id: NodeId,
     count: u8,
 }
 impl BeepyNode {
     fn send(&mut self, now: Time) -> Result<Vec<Transmission<BeepyPacket>>, String> {
         let count = self.count;
         self.count = self.count.wrapping_add(1);
-        Ok(vec![(
-            now + 1 + (count as Time % 8),
-            BeepyPacket::new(self.id, count),
-            0,
-        )
-            .into()])
+        Ok(vec![
+            Transmission::new(
+                now + 1 + (count as Time % 8),
+                BeepyPacket::new(self.id.clone(), count),
+                0.into(),
+            ),
+        ])
     }
 }
 impl WirelessNode<BeepyPacket> for BeepyNode {

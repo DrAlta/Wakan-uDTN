@@ -21,7 +21,7 @@ impl<P, N: WirelessNode<P>> Node<P, N> {
         outbound_links: Vec<NodeId>,
         inbound_links: Vec<NodeId>,
     ) -> Self {
-        let wireless_node = WirelessNode::new(id);
+        let wireless_node = WirelessNode::new(id.clone());
         Node {
             id,
             wireless_node,

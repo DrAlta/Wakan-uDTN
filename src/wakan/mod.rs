@@ -1,3 +1,7 @@
+mod node_id;
+pub use node_id::NodeId;
+mod radio;
+pub use radio::Radio;
 mod sim;
 pub use sim::WakamSim;
 mod transmission;
@@ -10,8 +14,6 @@ pub use wireless_nodes::{
     WakanPacket,
 };
 
-pub type NodeId = u64;
-pub type Radio = u8;
 pub type Time = u64;
 
 type RecievedTime = Time;

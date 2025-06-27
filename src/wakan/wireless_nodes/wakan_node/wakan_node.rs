@@ -6,7 +6,7 @@ use crate::wakan::{NodeId, Radio, RecievedTime, Time, Transmission, WakanPacket,
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct WakanNode {
-    id: u64,
+    id: NodeId,
     count: u8,
 }
 impl WakanNode {
@@ -14,7 +14,11 @@ impl WakanNode {
         let count = self.count;
         self.count = self.count.wrapping_add(1);
         Ok(vec![
-            (now + 1 + (count as Time % 8), (self.id, count), 0).into()
+            Transmission::new(
+                now + 1 + (count as Time % 8), 
+                (self.id.clone(), count), 
+                0.into()
+            ),
         ])
     }
 }

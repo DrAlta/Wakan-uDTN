@@ -9,7 +9,7 @@ use crate::wakan::{
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct FloodNode {
-    id: u64,
+    id: NodeId,
     count: u8,
     seen: BTreeSet<PacketId>,
 }
@@ -21,17 +21,18 @@ impl WirelessNode<FloodPacket> for FloodNode {
         recieved_packets: Vec<(RecievedTime, Rc<FloodPacket>, Radio)>,
     ) -> Result<Vec<Transmission<FloodPacket>>, String> {
         if recieved_packets.is_empty() {
-            if now == 0 && self.id == 1 {
+            if now == 0 && self.id.0 == 1 {
                 logy!("trace-flood-node", "now == 0 node 1 is starting");
                 let count = self.count;
                 self.count = self.count.wrapping_add(1);
                 self.seen.insert(0);
-                Ok(vec![(
-                    now + 1 + (count as Time % 8),
-                    FloodPacket::new(self.id, 0),
-                    0,
-                )
-                    .into()])
+                Ok(vec![
+                    Transmission::new(
+                        now + 1 + (count as Time % 8),
+                        FloodPacket::new(self.id.clone(), 0),
+                        0.into(),
+                    ),
+                ])
             } else {
                 // we didn't receive anything and we aren't starting so send nothing
                 Ok(Vec::new())
@@ -47,11 +48,11 @@ impl WirelessNode<FloodPacket> for FloodNode {
                     };
                     self.seen.insert(packet.1);
                     let mut new_packet = packet.as_ref().clone();
-                    new_packet.push(self.id);
-                    Some((now + 1, new_packet, 0).into())
+                    new_packet.push(self.id.clone());
+                    Some(Transmission::new(now + 1, new_packet, 0.into()))
                 })
                 .collect();
-            if self.id == 1 && !send_packets.is_empty() {
+            if self.id.0 == 1 && !send_packets.is_empty() {
                 logy!("info", "node 1 is sending stuff");
             }
             Ok(send_packets)

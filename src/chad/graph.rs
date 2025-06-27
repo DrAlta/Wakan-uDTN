@@ -94,15 +94,15 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
 
         for raw in &raw_nodes {
             nodes_map.insert(
-                raw.id,
-                Node::new(raw.id, raw.x, raw.y, raw.outbound_links.clone(), Vec::new()),
+                raw.id.clone(),
+                Node::new(raw.id.clone(), raw.x, raw.y, raw.outbound_links.clone(), Vec::new()),
             );
         }
 
         for raw in &raw_nodes {
             for target_id in &raw.outbound_links {
                 if let Some(target_node) = nodes_map.get_mut(target_id) {
-                    target_node.inbound_links.push(raw.id);
+                    target_node.inbound_links.push(raw.id.clone());
                 }
             }
         }
