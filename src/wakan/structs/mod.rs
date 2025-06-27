@@ -1,7 +1,13 @@
+mod graph;
+pub use graph::Graph;
+mod node;
+pub use node::Node;
 mod node_id;
 pub use node_id::NodeId;
 mod radio;
 pub use radio::Radio;
+mod raw_node;
+pub use raw_node::RawNode;
 mod wakan_sim;
 pub use wakan_sim::WakamSim;
 mod transmission;

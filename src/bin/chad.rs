@@ -1,10 +1,9 @@
 use macroquad::prelude::*;
 use std::env;
 
-use wakan_sim::chad::{generate_random_graph, Graph, RawNode};
 use wakan_sim::wakan::{
-    /*FloodNode, FloodPacket,*/ Parent, PlumTreeNode, PlumTreePacket, Time, WakamSim,
-    WirelessNode,
+    /*FloodNode, FloodPacket,*/ Graph, Parent, PlumTreeNode, PlumTreePacket, RawNode, Time,
+    WakamSim, WirelessNode,
 };
 
 const TIME_PER_TICK: f32 = 0.5;
@@ -13,15 +12,15 @@ const NODE_SIZE: f32 = 10.0;
 #[macroquad::main("Wakan Sim")]
 pub async fn main() {
     let args: Vec<String> = env::args().collect();
-    let graph = if let Some(filename) = args.get(1).cloned() {
+    let graph: Graph<PlumTreePacket, PlumTreeNode> = if let Some(filename) = args.get(1).cloned() {
         let json_str = std::fs::read_to_string(&filename)
             .unwrap_or_else(|_| panic!("Failed to read JSON file: {}", filename));
         let raw_nodes: Vec<RawNode> =
             serde_jsonrc::from_str(&json_str).expect("Invalid JSON format");
 
-        Graph::<PlumTreePacket, PlumTreeNode>::from_raw_nodes(raw_nodes)
+        Graph::from_raw_nodes(raw_nodes)
     } else {
-        generate_random_graph(25, screen_width(), screen_height(), 15.0)
+        Graph::generate_random_graph(25, screen_width(), screen_height(), 15.0)
     };
     let mut time = 0.0;
 

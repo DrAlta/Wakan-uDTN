@@ -1,5 +1,5 @@
 mod structs;
-pub use structs::{NodeId, Radio, Transmission, WakamSim};
+pub use structs::{Graph, Node, NodeId, Radio, RawNode, Transmission, WakamSim};
 mod traits;
 pub use traits::{Parent, WirelessNode};
 mod wireless_nodes;

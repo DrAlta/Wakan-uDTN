@@ -1,8 +1,6 @@
-use crate::{
-    chad::Node,
-    wakan::{NodeId, WirelessNode},
-};
 use serde::{Deserialize, Serialize};
+
+use crate::wakan::{Node, NodeId, WirelessNode};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RawNode {

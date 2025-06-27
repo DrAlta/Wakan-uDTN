@@ -3,10 +3,7 @@ use std::{collections::HashMap, i32, rc::Rc};
 use ordered_f32::OrderedF32;
 use qol::logy;
 
-use crate::{
-    chad::Graph,
-    wakan::{NodeId, Radio, Time, Transmission, WirelessNode},
-};
+use crate::wakan::{Graph, NodeId, Radio, Time, Transmission, WirelessNode};
 
 type ScheduledReceptionTime = Time;
 type ReceiverNodeId = NodeId;

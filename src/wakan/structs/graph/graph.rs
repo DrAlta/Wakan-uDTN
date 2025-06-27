@@ -4,11 +4,9 @@ use std::{
     rc::Rc,
 };
 
-use crate::wakan::{NodeId, Radio, Time, Transmission, WirelessNode};
+use crate::wakan::{Node, NodeId, Radio, RawNode, Time, Transmission, WirelessNode};
 
 pub type Coord = (OrderedF32, OrderedF32);
-
-use super::Node;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Graph<P, N: WirelessNode<P>> {
@@ -89,7 +87,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
 }
 
 impl<P, N: WirelessNode<P>> Graph<P, N> {
-    pub fn from_raw_nodes(raw_nodes: Vec<super::RawNode>) -> Self {
+    pub fn from_raw_nodes(raw_nodes: Vec<RawNode>) -> Self {
         let mut nodes_map: HashMap<NodeId, Node<P, N>> = HashMap::new();
 
         for raw in &raw_nodes {
@@ -117,7 +115,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             nodes: nodes_map.into_iter().collect(),
         }
     }
-    fn to_raw_nodes(&self) -> Vec<super::RawNode> {
+    fn to_raw_nodes(&self) -> Vec<RawNode> {
         self.nodes.iter().map(|(_, x)| x.into()).collect()
     }
 
