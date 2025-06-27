@@ -1,9 +1,12 @@
 use macroquad::prelude::*;
 use std::env;
 
-use wakan_sim::wakan::{
-    /*FloodNode, FloodPacket,*/ Graph, Parent, PlumTreeNode, PlumTreePacket, RawNode, Time,
-    WakamSim, WirelessNode,
+use wakan_sim::{
+    graphic_frontend::{draw_graph_edges, draw_graph_nodes, draw_parent_arrow_heads},
+    wakan::{
+        /*FloodNode, FloodPacket,*/ Graph, Parent, PlumTreeNode, PlumTreePacket, RawNode,
+        Time, WakamSim, WirelessNode,
+    },
 };
 
 const TIME_PER_TICK: f32 = 0.5;
@@ -31,8 +34,8 @@ pub async fn main() {
         clear_background(WHITE);
 
         draw_graph_edges(sim.get_graph());
-        draw_graph_nodes(sim.get_graph());
-        draw_parent_arrow_heads(sim.get_graph());
+        draw_graph_nodes(NODE_SIZE, sim.get_graph());
+        draw_parent_arrow_heads(7.0, NODE_SIZE, sim.get_graph());
 
         time += get_frame_time();
         if time >= TIME_PER_TICK {
@@ -42,60 +45,5 @@ pub async fn main() {
         }
         //assert_ne!(sim_time, 10);
         next_frame().await
-    }
-}
-
-fn draw_graph_nodes<P, N: WirelessNode<P>>(graph: &Graph<P, N>) {
-    for node in graph.all_nodes() {
-        draw_circle(node.x.into(), node.y.into(), NODE_SIZE, BLUE);
-        draw_text(
-            &format!("{}", node.id),
-            Into::<f32>::into(node.x) + 12.0,
-            node.y.into(),
-            16.0,
-            BLACK,
-        );
-    }
-}
-fn draw_graph_edges<P, N: WirelessNode<P>>(graph: &Graph<P, N>) {
-    // Draw edges
-    for node in graph.all_nodes() {
-        for link_id in &node.outbound_links {
-            if let Some(target) = graph.get_node(link_id) {
-                draw_line(
-                    node.x.into(),
-                    node.y.into(),
-                    target.x.into(),
-                    target.y.into(),
-                    2.0,
-                    GRAY,
-                );
-            }
-        }
-    }
-}
-
-fn draw_parent_arrow_heads<P, T: WirelessNode<P> + Parent>(graph: &Graph<P, T>) {
-    let size = 7.0;
-    for node in graph.all_nodes() {
-        if let Some(parent_id) = node.outbound_links.get(0) {
-            //if let Some(parent_id) = node.wireless_node.get_parent() {
-            if let Some(target) = graph.get_node(&parent_id) {
-                // Perpendicular vector (90° counter-clockwise)
-                let head = vec2(node.x.into(), node.y.into());
-                let tail = vec2(target.x.into(), target.y.into());
-                let line = tail - head;
-                let dir = line.normalize();
-                let perp = Vec2::new(-dir.y, dir.x);
-
-                let (arrow_tip, offset) = if false {
-                    (tail - (dir * NODE_SIZE), tail - (dir * (size + NODE_SIZE)))
-                } else {
-                    (head + (dir * NODE_SIZE), head + (dir * (size + NODE_SIZE)))
-                };
-                let arrow_point = offset + (perp * size);
-                draw_triangle(arrow_tip, arrow_point, offset, RED);
-            }
-        }
     }
 }
