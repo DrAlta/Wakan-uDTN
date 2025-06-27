@@ -26,13 +26,11 @@ impl WirelessNode<FloodPacket> for FloodNode {
                 let count = self.count;
                 self.count = self.count.wrapping_add(1);
                 self.seen.insert(0);
-                Ok(vec![
-                    Transmission::new(
-                        now + 1 + (count as Time % 8),
-                        FloodPacket::new(self.id.clone(), 0),
-                        0.into(),
-                    ),
-                ])
+                Ok(vec![Transmission::new(
+                    now + 1 + (count as Time % 8),
+                    FloodPacket::new(self.id.clone(), 0),
+                    0.into(),
+                )])
             } else {
                 // we didn't receive anything and we aren't starting so send nothing
                 Ok(Vec::new())

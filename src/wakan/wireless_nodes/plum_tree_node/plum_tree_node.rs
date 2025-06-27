@@ -12,7 +12,7 @@ use crate::wakan::{
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PlumTreeNode {
-    id: u64,
+    id: NodeId,
     next_beacon: Time,
     neighbors: BTreeMap<NodeId, NeighborInfo>,
 }
@@ -37,7 +37,7 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
                         None => {
                             let neighbors_of_neighbor = neighbors.clone();
                             self.neighbors.insert(
-                                *source,
+                                source.clone(),
                                 NeighborInfo {
                                     first_seen: last_seen.clone(),
                                     last_seen,
@@ -51,16 +51,14 @@ impl WirelessNode<PlumTreePacket> for PlumTreeNode {
         }
         if now >= self.next_beacon {
             self.next_beacon = gen_next_heartbeat_time(self.next_beacon);
-            transmissions.push(
-                Transmission::new(
-                    now + 1,
-                    PlumTreePacket::new_beacon(
-                        self.id.clone(),
-                        self.neighbors.keys().map(|x| *x).collect(),
-                    ),
-                    0.into(),
+            transmissions.push(Transmission::new(
+                now + 1,
+                PlumTreePacket::new_beacon(
+                    self.id.clone(),
+                    self.neighbors.keys().map(|x| x.clone()).collect(),
                 ),
-            );
+                0.into(),
+            ));
         };
         Ok(transmissions)
     }
@@ -81,7 +79,7 @@ fn gen_next_heartbeat_time(time: Time) -> Time {
     (hash % 29) as Time + 5
 }
 
-impl PlumTreeNode{
+impl PlumTreeNode {
     pub fn find_oldest_neighbor(&self) -> Option<NodeId> {
         /*
         let iter= &self.last_seen.iter();

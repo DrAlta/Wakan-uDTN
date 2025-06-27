@@ -152,8 +152,8 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                                 * SCALE,
                         );
                     scheduled_receptions.push((
-                        receiver,
-                        *neighbor_id,
+                        receiver.clone(),
+                        neighbor_id.clone(),
                         recieved_time,
                         shared_packet.clone(),
                         0.into(),

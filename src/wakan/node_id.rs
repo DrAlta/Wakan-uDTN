@@ -11,11 +11,12 @@ impl fmt::Display for NodeId {
     }
 }
 
-impl From<u32> for NodeId{
+impl From<u32> for NodeId {
     fn from(value: u32) -> Self {
         Self(value)
     }
-}impl From<usize> for NodeId{
+}
+impl From<usize> for NodeId {
     fn from(value: usize) -> Self {
         Self(value as u32)
     }

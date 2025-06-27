@@ -13,13 +13,11 @@ impl WakanNode {
     fn send(&mut self, now: Time) -> Result<Vec<Transmission<WakanPacket>>, String> {
         let count = self.count;
         self.count = self.count.wrapping_add(1);
-        Ok(vec![
-            Transmission::new(
-                now + 1 + (count as Time % 8), 
-                (self.id.clone(), count), 
-                0.into()
-            ),
-        ])
+        Ok(vec![Transmission::new(
+            now + 1 + (count as Time % 8),
+            (self.id.clone(), count),
+            0.into(),
+        )])
     }
 }
 impl WirelessNode<WakanPacket> for WakanNode {

@@ -1,5 +1,5 @@
-use std::collections::{BTreeMap, BTreeSet};
 use std::cmp::Ordering;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::wakan::{NodeId, Radio, Time};
 
@@ -18,22 +18,33 @@ impl NeighborInfo {
             neighbors_of_neighbor: BTreeSet::new(),
         }
     }
-    pub fn new(first_seen: BTreeMap<Radio, Time>, last_seen: BTreeMap<Radio, Time>, neighbors_of_neighbor: BTreeSet<NodeId>) -> Self {
+    pub fn new(
+        first_seen: BTreeMap<Radio, Time>,
+        last_seen: BTreeMap<Radio, Time>,
+        neighbors_of_neighbor: BTreeSet<NodeId>,
+    ) -> Self {
         Self {
             first_seen,
             last_seen,
             neighbors_of_neighbor,
         }
     }
-    pub fn find_oldest_time(&self) -> Option<NodeId> {
-        self.first_seen.iter().min_by(
-            |(ar,at),(br, bt)| {
-                match at.cmp(bt) {
-                    Ordering::Less => Ordering::Less,
-                    Ordering::Equal => ar.cmp(br),
-                    Ordering::Greater => Ordering::Greater,
-                }
-            }
+    pub fn find_oldest_time(&self) -> Option<Time> {
+        Some(
+            self.first_seen
+                .iter()
+                .min_by(|(_, a), (_, b)| a.cmp(b))?
+                .1
+                .clone(),
         )
+    }
+    pub fn find_oldest_radio_time(&self) -> Option<(&Radio, &Time)> {
+        self.first_seen
+            .iter()
+            .min_by(|(ar, at), (br, bt)| match at.cmp(bt) {
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => ar.cmp(br),
+                Ordering::Greater => Ordering::Greater,
+            })
     }
 }

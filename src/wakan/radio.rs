@@ -11,17 +11,17 @@ impl fmt::Display for Radio {
     }
 }
 
-impl From<u8> for Radio{
+impl From<u8> for Radio {
     fn from(value: u8) -> Self {
         Self(value)
     }
 }
-impl From<i8> for Radio{
+impl From<i8> for Radio {
     fn from(value: i8) -> Self {
         Self(value as u8)
     }
 }
-impl From<i32> for Radio{
+impl From<i32> for Radio {
     fn from(value: i32) -> Self {
         Self(value as u8)
     }

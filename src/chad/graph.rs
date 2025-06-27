@@ -95,7 +95,13 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         for raw in &raw_nodes {
             nodes_map.insert(
                 raw.id.clone(),
-                Node::new(raw.id.clone(), raw.x, raw.y, raw.outbound_links.clone(), Vec::new()),
+                Node::new(
+                    raw.id.clone(),
+                    raw.x,
+                    raw.y,
+                    raw.outbound_links.clone(),
+                    Vec::new(),
+                ),
             );
         }
 
