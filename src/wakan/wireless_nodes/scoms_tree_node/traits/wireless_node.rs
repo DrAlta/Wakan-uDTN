@@ -73,13 +73,22 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
                 self.find_oldest_neighbor_that_the_lowest_id_can_be_accessed_thru()
             {
                 // if we found out set it to are new parent
-                logy!(
-                    "trace-scoms-tree-node",
-                    "{:?} set its parent to {:?}",
-                    self.id,
-                    oldest_id
-                );
-                self.parent = Some(oldest_id.clone());
+                if oldest_id.0 < self.id.0 {
+                    logy!(
+                        "trace-scoms-tree-node",
+                        "{:?} set its parent to {:?}",
+                        self.id,
+                        oldest_id
+                    );
+                    self.parent = Some(oldest_id.clone());
+                } else {
+                    logy!(
+                        "trace-scoms-tree-node",
+                        "{:?} failed to find a new parent",
+                        self.id,
+                    );
+                    self.parent = None;
+                }
             }
         }
 

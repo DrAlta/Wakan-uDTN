@@ -29,7 +29,12 @@ impl ScomsTreeNode {
                     Ordering::Greater => Ordering::Greater,
                 },
             )?;
-        Some(x.0)
+
+        if x.0 .0 < self.id.0 {
+            Some(x.0)
+        } else {
+            None
+        }
     }
     pub fn find_oldest_neighbor(&self) -> Option<&NodeId> {
         let x = self
