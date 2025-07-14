@@ -16,13 +16,19 @@ impl ScomsTreeNode {
             .neighbors
             .iter()
             .filter_map(|(neighbor_id, neighbor_info)| {
-                Some((neighbor_id, &neighbor_info.lowest_accessable_thru, neighbor_info.find_oldest_time()?))
+                Some((
+                    neighbor_id,
+                    &neighbor_info.lowest_accessable_thru,
+                    neighbor_info.find_oldest_time()?,
+                ))
             })
-            .min_by(|(_, a_lowest, a_age), (_, b_lowest, b_age)| match a_lowest.cmp(b_lowest){
-                Ordering::Less => Ordering::Less,
-                Ordering::Equal => a_age.cmp(b_age),
-                Ordering::Greater => Ordering::Greater,
-            })?;
+            .min_by(
+                |(_, a_lowest, a_age), (_, b_lowest, b_age)| match a_lowest.cmp(b_lowest) {
+                    Ordering::Less => Ordering::Less,
+                    Ordering::Equal => a_age.cmp(b_age),
+                    Ordering::Greater => Ordering::Greater,
+                },
+            )?;
         Some(x.0)
     }
     pub fn find_oldest_neighbor(&self) -> Option<&NodeId> {

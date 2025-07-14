@@ -8,7 +8,7 @@ pub struct NeighborInfo {
     pub first_seen: BTreeMap<Radio, Time>,
     pub last_seen: BTreeMap<Radio, Time>,
     pub neighbors_of_neighbor: BTreeSet<NodeId>,
-    pub lowest_accessable_thru: NodeId
+    pub lowest_accessable_thru: NodeId,
 }
 #[allow(dead_code)]
 impl NeighborInfo {

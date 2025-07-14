@@ -1,6 +1,6 @@
 //! Self-Stable Compact Minimum Stretch tree
 //! pronounced like 'scones' but with a 'm' instead of 'n'
-//! 
+//!
 //! todo:
 //! we want to check is any of are neighbor now a node with a lower id than we do and if so make then are parent
 mod find_lowest_id_lowest_accessable_thru_neighbor;

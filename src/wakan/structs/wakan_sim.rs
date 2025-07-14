@@ -42,11 +42,15 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
         let mut next_reception = None;
         let mut count_of_transmissions = 0;
         let _ = &count_of_transmissions; // to get read of the lints about it being unused as it's only used currently by the feature that isn't a default feature
-        // Process up to 100 receptions per tick.
+                                         // Process up to 100 receptions per tick.
         let limit = i32::MAX;
         for i in 0..limit {
             if i == limit - 1 {
-                logy!("trace-wakan-sim", "hit loop limit. {:?} receptions still scheduled.", scheduled_receptions.len());
+                logy!(
+                    "trace-wakan-sim",
+                    "hit loop limit. {:?} receptions still scheduled.",
+                    scheduled_receptions.len()
+                );
             };
             // Sort receptions by scheduled time, in descending order (to pop earliest last).
             scheduled_receptions.sort_by(
