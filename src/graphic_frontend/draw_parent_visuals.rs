@@ -30,6 +30,14 @@ pub fn draw_parent_visuals<P, T: WirelessNode<P> + Parent>(
                     )
                 };
                 let arrow_point = offset + (perp * arrow_head_size);
+                draw_line(
+                    arrow_tip.x,
+                    arrow_tip.y,
+                    node.x.into(),
+                    node.y.into(),
+                    1.0,
+                    BLACK,
+                );
                 draw_triangle(arrow_tip, arrow_point, offset, RED);
             }
         } else {

@@ -81,6 +81,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
     fn new(id: NodeId) -> Self {
         let next_beacon = gen_next_heartbeat_time(id.0 as Time);
         Self {
+            lowest_known_node_id: id.clone(),
             id,
             next_beacon,
             neighbors: BTreeMap::new(),

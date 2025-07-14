@@ -30,7 +30,11 @@ impl ScomsTreeNode {
         // remove children that went down
         self.children.retain(|x| {
             if ids_neighbors_that_went_down.contains(x) {
-                logy!("trace-scoms-tree-node", "{:?} removed child {x:?}", self.id,);
+                logy!(
+                    "trace-scoms-tree-node-update",
+                    "{:?} removed child {x:?}",
+                    self.id,
+                );
                 false
             } else {
                 true
@@ -42,7 +46,7 @@ impl ScomsTreeNode {
             let x = ids_neighbors_that_went_down.contains(parent_id);
             if x {
                 logy!(
-                    "trace-scoms-tree-node",
+                    "trace-scoms-tree-node-update",
                     "{:?}'s' parent, {parent_id:?}, went offline",
                     self.id
                 );
@@ -52,6 +56,68 @@ impl ScomsTreeNode {
             true
         };
 
+        if let Some((neighbor_known_by, lowest_id_known_by_neighbor)) =
+            self.find_lowest_id_known_by_neighbor()
+        {
+            match (
+                lowest_id_known_by_neighbor
+                    .0
+                    .cmp(&self.lowest_known_node_id.0),
+                lowest_id_known_by_neighbor.0 < self.id.0,
+            ) {
+                (std::cmp::Ordering::Less, true) => {
+                    logy!(
+                        "trace-scoms-tree-node-update",
+                        "{:?} found a new lowestID",
+                        self.id,
+                    );
+                    let new_parent_maybe = Some(neighbor_known_by.clone());
+                    // set the new lowest id
+                    self.lowest_known_node_id = lowest_id_known_by_neighbor.clone();
+                    self.parent_maybe = new_parent_maybe;
+                }
+                (std::cmp::Ordering::Less, false) => {
+                    // lowest known id is less than old but not lower than my own id
+                    // this shouldn't be possable as lowest known should never be hight
+                    // than our own id so if its lower that the was it should be lower than our id
+                    unreachable!("{:?}", {
+                        self.parent_maybe = None;
+                    })
+                }
+                (std::cmp::Ordering::Equal, true) | (std::cmp::Ordering::Equal, false) => {
+                    // lowest_known id hasn't changed
+                    /*
+                    logy!(
+                        "trace-scoms-tree-node-update",
+                        "{:?} lowest_id remained the same",
+                        self.id,
+                    );*/
+                }
+                (std::cmp::Ordering::Greater, true) => {
+                    // known lowest ID known by neighbers grow but is still smaller than our own id so set it as the lowest id we known
+                    logy!(
+                        "trace-scoms-tree-node-update",
+                        "{:?} found a new lowestID",
+                        self.id,
+                    );
+                    // set the new lowest id
+                    self.lowest_known_node_id = lowest_id_known_by_neighbor.clone();
+                }
+                (std::cmp::Ordering::Greater, false) => {
+                    // lowest id known by neigbors have gone up and isn't lower than my own id
+                    self.parent_maybe = None;
+                }
+            }
+        } else {
+            logy!(
+                "trace-scoms-tree-node-update",
+                "{:?} doesn't have neighbors:\n\n{:?}\n\n",
+                self.id,
+                self.neighbors
+            );
+        }
+
+        /*
         // if we need a new parent look for one
         if need_new_parent_ka {
             if self.parent_maybe.is_some() {
@@ -64,7 +130,7 @@ impl ScomsTreeNode {
                 // if we found out set it to are new parent
                 if oldest_id.0 < self.id.0 {
                     logy!(
-                        "trace-scoms-tree-node",
+                        "trace-scoms-tree-node-update",
                         "\n{:?} set its parent to {:?}",
                         self.id,
                         oldest_id
@@ -72,14 +138,13 @@ impl ScomsTreeNode {
                     self.parent_maybe = Some(oldest_id.clone());
                 } else {
                     logy!(
-                        "trace-scoms-tree-node",
+                        "trace-scoms-tree-node-update",
                         "\n{:?} failed to find a new parent",
                         self.id,
                     );
-                    panic!();
                     self.parent_maybe = None;
                 }
             }
-        }
+        }*/
     }
 }

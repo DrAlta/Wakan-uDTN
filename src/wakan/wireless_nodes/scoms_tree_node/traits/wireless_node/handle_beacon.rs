@@ -22,7 +22,7 @@ impl ScomsTreeNode {
             if parent == &self.id {
                 if self.children.insert(source.clone()) {
                     logy!(
-                        "trace-scoms-tree-node",
+                        "trace-scoms-tree-node-handle-beacon",
                         "{:?} added {:?} as child",
                         self.id,
                         source

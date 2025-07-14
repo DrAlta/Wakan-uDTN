@@ -42,7 +42,7 @@ pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
         let (cycles_ka, new_roots) = detect_cycles_with_roots(&x);
         if new_roots != last_roots {
             logy!(
-                "info",
+                "info-parent-sim",
                 "\nnew roots:{new_roots:?}(note:doesn't include lone nodes)"
             );
             last_roots = new_roots;
