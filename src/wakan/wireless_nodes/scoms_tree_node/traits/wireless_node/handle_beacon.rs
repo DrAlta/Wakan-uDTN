@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 
+use qol::logy;
+
 use crate::wakan::{
     wireless_nodes::scoms_tree_node::{
         find_lowest_id_lowest_accessable_thru_neighbor, types::NeighborInfo,
@@ -10,11 +12,25 @@ use crate::wakan::{
 impl ScomsTreeNode {
     pub fn handle_beacon(
         &mut self,
-        source: &NodeId,
         neighbors: &BTreeMap<NodeId, NodeId>,
+        parent_maybe: Option<&NodeId>,
+        source: &NodeId,
         recieved_time: &Time,
         radio: &Radio,
     ) {
+        if let Some(parent) = parent_maybe {
+            if parent == &self.id {
+                if self.children.insert(source.clone()) {
+                    logy!(
+                        "trace-scoms-tree-node",
+                        "{:?} added {:?} as child",
+                        self.id,
+                        source
+                    );
+                }
+            }
+        }
+
         // Beacon packets advertise a node's presence and its known neighbors.
         // This helps build and update the network view.
 

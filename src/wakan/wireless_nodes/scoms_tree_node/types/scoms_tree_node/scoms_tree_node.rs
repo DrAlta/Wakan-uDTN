@@ -1,4 +1,8 @@
-use std::{cmp::Ordering, collections::BTreeMap, hash::Hash};
+use std::{
+    cmp::Ordering,
+    collections::{BTreeMap, BTreeSet},
+    hash::Hash,
+};
 
 use crate::wakan::{wireless_nodes::scoms_tree_node::NeighborInfo, NodeId, Time};
 
@@ -7,7 +11,8 @@ pub struct ScomsTreeNode {
     pub(in super::super::super) id: NodeId,
     pub(in super::super::super) next_beacon: Time,
     pub(in super::super::super) neighbors: BTreeMap<NodeId, NeighborInfo>,
-    pub(in super::super::super) parent: Option<NodeId>,
+    pub(in super::super::super) parent_maybe: Option<NodeId>,
+    pub(in super::super::super) children: BTreeSet<NodeId>,
 }
 
 impl ScomsTreeNode {

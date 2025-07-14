@@ -1,9 +1,11 @@
+use std::collections::BTreeSet;
+
 use macroquad::prelude::*;
 use qol::logy;
 
 use crate::{
-    detect_cycles::detect_cycles,
-    graphic_frontend::{draw_graph_edges, draw_graph_nodes, draw_parent_arrow_heads},
+    detect_cycles::detect_cycles_with_roots,
+    graphic_frontend::{draw_graph_edges, draw_graph_nodes, draw_parent_visuals},
     wakan::{Parent, Time, WakamSim, WirelessNode},
 };
 
@@ -16,13 +18,13 @@ pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
     let mut time = 0.0;
 
     let mut sim_time: Time = 0;
-
+    let mut last_roots = BTreeSet::new();
     loop {
         clear_background(WHITE);
 
         draw_graph_edges(sim.get_graph());
         draw_graph_nodes(node_size, sim.get_graph());
-        draw_parent_arrow_heads(arrow_head_size, node_size, sim.get_graph());
+        draw_parent_visuals(arrow_head_size, node_size, sim.get_graph());
 
         time += get_frame_time();
         if time >= time_per_tick {
@@ -37,8 +39,17 @@ pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
             .all_nodes()
             .filter_map(|node| Some((node.id.clone(), node.wireless_node.get_parent()?)))
             .collect();
-        let cycles_ka = detect_cycles(&x);
-        logy!("info", "cycles found?: {cycles_ka}");
+        let (cycles_ka, new_roots) = detect_cycles_with_roots(&x);
+        if new_roots != last_roots {
+            logy!(
+                "info",
+                "\nnew roots:{new_roots:?}(note:doesn't include lone nodes)"
+            );
+            last_roots = new_roots;
+        }
+        if cycles_ka {
+            logy!("info", "\nCycles found!");
+        }
         next_frame().await
     }
 }

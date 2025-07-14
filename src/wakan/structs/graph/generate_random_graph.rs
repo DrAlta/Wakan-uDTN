@@ -2,7 +2,7 @@ use ghx_constrained_delaunay::{
     triangulation::TriangulationConfiguration, triangulation_from_2d_vertices,
     types::Vertex as Point,
 };
-use rand::Rng;
+use rand::{Rng, SeedableRng};
 
 use crate::wakan::{Graph, NodeId, RawNode, WirelessNode};
 
@@ -14,7 +14,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         min_dist: f32,
     ) -> Graph<P, N> {
         let min_dist_sqrd = min_dist * min_dist;
-        let mut rng = rand::rng();
+        let seed = [1; 32];
+        let mut rng = rand::rngs::SmallRng::from_seed(seed);
 
         // Step 1: Create RawNodes with random positions
         let mut raw_nodes = Vec::new();

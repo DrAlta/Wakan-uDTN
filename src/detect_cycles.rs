@@ -1,18 +1,29 @@
-use std::collections::HashMap;
-pub fn detect_cycles<Id: std::hash::Hash + std::cmp::Eq + Clone + std::fmt::Debug>(
+use std::collections::{BTreeSet, HashMap};
+
+pub fn detect_cycles<
+    Id: std::hash::Hash + std::cmp::Eq + std::cmp::Ord + Clone + std::fmt::Debug,
+>(
     graph: &HashMap<Id, Id>,
 ) -> bool {
+    detect_cycles_with_roots(graph).0
+}
+pub fn detect_cycles_with_roots<
+    Id: std::hash::Hash + std::cmp::Eq + std::cmp::Ord + Clone + std::fmt::Debug,
+>(
+    graph: &HashMap<Id, Id>,
+) -> (bool, BTreeSet<Id>) {
+    let mut roots = BTreeSet::new();
     let mut visited = Vec::new();
     let mut unvisited: Vec<Id> = graph.keys().map(|x| x.clone()).collect();
 
     loop {
         let mut this_path = Vec::new();
         let Some(mut next_id) = unvisited.pop() else {
-            return false;
+            return (false, roots);
         };
         'inner: loop {
             if this_path.contains(&next_id) {
-                return true;
+                return (true, roots);
             };
 
             if visited.contains(&next_id) {
@@ -22,7 +33,8 @@ pub fn detect_cycles<Id: std::hash::Hash + std::cmp::Eq + Clone + std::fmt::Debu
             };
             this_path.push(next_id.clone());
             let Some(parent) = graph.get(&next_id) else {
-                println!("45:found tree rooted as {next_id:?}");
+                //println!("45:found tree rooted as {next_id:?}");
+                roots.insert(next_id.clone());
                 visited.push(next_id);
                 break 'inner;
             };
