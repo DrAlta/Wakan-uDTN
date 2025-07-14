@@ -13,12 +13,12 @@ qol = { version = "0.1.19", git = "https://github.com/DrAlta/rust_quality_of_lif
 ordered-f32 = { version = "0.1.11", git = "https://github.com/DrAlta/rust-ordered-f32.git"}
 
 [features]
-default = ["error", "info", "trace", "trace-wakan-node"]
+default = ["error", "info", "trace", "trace-scoms-tree-node"]
 error = []
 info = []
 trace = []
 trace-wakan-sim = []
 trace-beepy-node = []
 trace-flood-node = []
-trace-plum-tree-node = []
+trace-scoms-tree-node = []
 trace-wakan-node = []

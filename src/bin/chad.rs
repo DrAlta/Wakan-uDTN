@@ -1,12 +1,12 @@
 use macroquad::prelude::*;
 use std::env;
 
-use wakan_sim::wakan::{Frontend, Graph, PlumTreeNode, PlumTreePacket, RawNode, WakamSim};
+use wakan_sim::wakan::{Frontend, Graph, ScomsTreeNode, ScomsTreePacket, RawNode, WakamSim};
 
 #[macroquad::main("Wakan Sim")]
 pub async fn main() {
     let args: Vec<String> = env::args().collect();
-    let graph: Graph<PlumTreePacket, PlumTreeNode> = if let Some(filename) = args.get(1).cloned() {
+    let graph: Graph<ScomsTreePacket, ScomsTreeNode> = if let Some(filename) = args.get(1).cloned() {
         let json_str = std::fs::read_to_string(&filename)
             .unwrap_or_else(|_| panic!("Failed to read JSON file: {}", filename));
         let raw_nodes: Vec<RawNode> =

@@ -32,6 +32,8 @@ pub fn draw_parent_arrow_heads<P, T: WirelessNode<P> + Parent>(
                 let arrow_point = offset + (perp * arrow_head_size);
                 draw_triangle(arrow_tip, arrow_point, offset, RED);
             }
+        } else {
+            draw_circle(node.x.into(), node.y.into(), 5.0, GREEN);
         }
     }
 }

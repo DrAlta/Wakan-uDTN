@@ -1,8 +1,8 @@
 use macroquad::prelude::*;
+use qol::logy;
 
 use crate::{
-    graphic_frontend::{draw_graph_edges, draw_graph_nodes, draw_parent_arrow_heads},
-    wakan::{Parent, Time, WakamSim, WirelessNode},
+    detect_cycles::detect_cycles, graphic_frontend::{draw_graph_edges, draw_graph_nodes, draw_parent_arrow_heads}, wakan::{Parent, Time, WakamSim, WirelessNode}
 };
 
 pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
@@ -29,6 +29,16 @@ pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
             sim_time += 1;
         }
         //assert_ne!(sim_time, 10);
+
+        let x = sim.get_graph().all_nodes().filter_map(
+            |node| 
+            Some((
+                node.id.clone(), 
+                node.wireless_node.get_parent()?
+            ))
+        ).collect();
+        let cycles_ka = detect_cycles(&x);
+        logy!("info", "cycles found?: {cycles_ka}");
         next_frame().await
     }
 }

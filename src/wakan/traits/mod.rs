@@ -1,5 +1,5 @@
 mod frontend;
-pub use frontend::{parent_sim, Frontend};
+pub use frontend::Frontend;
 mod parent;
 pub use parent::Parent;
 mod wireless_node;

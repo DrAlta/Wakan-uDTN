@@ -28,8 +28,8 @@ impl WirelessNode<BeepyPacket> for BeepyNode {
         recieved_packets: Vec<(RecievedTime, Rc<BeepyPacket>, Radio)>,
     ) -> Result<Vec<Transmission<BeepyPacket>>, String> {
         if recieved_packets.is_empty() {
-            if now == 0 {
-                logy!("trace-beepy-node", "now == 0");
+            if now == 0 && self.id.0 == 1 {
+                logy!("trace-beepy-node", "we are node 0 and now == 0");
                 self.send(now)
             } else {
                 Ok(Vec::new())

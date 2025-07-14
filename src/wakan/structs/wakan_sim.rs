@@ -41,11 +41,12 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
             .collect();
         let mut next_reception = None;
         let mut count_of_transmissions = 0;
+        let _ = &count_of_transmissions; // to get read of the lints about it being unused as it's only used currently by the feature that isn't a default feature
         // Process up to 100 receptions per tick.
         let limit = i32::MAX;
         for i in 0..limit {
             if i == limit - 1 {
-                logy!("info", "hit loop limit{:?}", scheduled_receptions.len());
+                logy!("trace-wakan-sim", "hit loop limit. {:?} receptions still scheduled.", scheduled_receptions.len());
             };
             // Sort receptions by scheduled time, in descending order (to pop earliest last).
             scheduled_receptions.sort_by(
@@ -93,7 +94,7 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
             };
             queue.push((recieved_time, shared_packet, radio));
         }
-        logy!("info", "now: {time}, next:{next_reception:?}");
+        logy!("trace-wakan-sim", "now: {time}, next:{next_reception:?}");
 
         // Iterate over each node that had packets delivered.
         'receivers: for (receiver, recieved_packets) in queues.into_iter() {
@@ -158,7 +159,7 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                 }
             }
         } // end looping over receptions
-        logy!("info", "{count_of_transmissions} transmissions");
+        logy!("trace-wakan-sim", "{count_of_transmissions} transmissions");
         next_reception
     }
     pub fn new(graph: Graph<P, N>) -> Self {
