@@ -11,6 +11,10 @@ pub enum ScomsTreePacket {
         parent_maybe: Option<NodeId>,
         neighbors: BTreeMap<NodeId, LowestKnownId>,
     },
+    TreeMerge {
+        source: NodeId,
+        new_root: NodeId,
+    },
 }
 
 impl ScomsTreePacket {
@@ -40,6 +44,9 @@ impl fmt::Display for ScomsTreePacket {
                     "Beacon{{source:{}, parent:{:?}, neighbors:{:?}}})",
                     source, parent, neighbors
                 )
+            }
+            ScomsTreePacket::TreeMerge { source, new_root } => {
+                write!(f, "TreeMerge{{source:{}, new_root:{}}})", source, new_root)
             }
         }
     }

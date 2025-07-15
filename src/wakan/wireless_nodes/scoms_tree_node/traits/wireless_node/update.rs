@@ -1,9 +1,17 @@
 use qol::logy;
 
-use crate::wakan::{wireless_nodes::scoms_tree_node::MAX_AGE, ScomsTreeNode, Time};
+use crate::wakan::{
+    wireless_nodes::scoms_tree_node::MAX_AGE, ScomsTreeNode, ScomsTreePacket, Time, Transmission,
+};
 
 impl ScomsTreeNode {
-    pub fn update(&mut self, now: Time) {
+    pub fn update(
+        &mut self,
+        mut merge_trees_ka: bool, // `merge_trees_ka` is part of the delay to give time for the lowest id in tree mergers to travel along the tree
+        heard_new_root_from_announcment_ka: bool,
+        transmissions: &mut Vec<Transmission<ScomsTreePacket>>,
+        now: Time,
+    ) {
         // cutoff is the limit for consider nodes offline if we haven't heard from them
         // on or after cutoff then we cosider they have gone offline
         let cutoff = now.saturating_sub(MAX_AGE);
@@ -40,21 +48,6 @@ impl ScomsTreeNode {
                 true
             }
         });
-        // update parent if needed
-        // find out if we need a new_parent?
-        let need_new_parent_ka = if let Some(parent_id) = &self.parent_maybe {
-            let x = ids_neighbors_that_went_down.contains(parent_id);
-            if x {
-                logy!(
-                    "trace-scoms-tree-node-update",
-                    "{:?}'s' parent, {parent_id:?}, went offline",
-                    self.id
-                );
-            };
-            x
-        } else {
-            true
-        };
 
         if let Some((neighbor_known_by, lowest_id_known_by_neighbor)) =
             self.find_lowest_id_known_by_neighbor()
@@ -66,15 +59,24 @@ impl ScomsTreeNode {
                 lowest_id_known_by_neighbor.0 < self.id.0,
             ) {
                 (std::cmp::Ordering::Less, true) => {
+                    /*
                     logy!(
                         "trace-scoms-tree-node-update",
                         "{:?} found a new lowestID",
                         self.id,
                     );
-                    let new_parent_maybe = Some(neighbor_known_by.clone());
+                    logy!(
+                        "trace-scoms-tree-node-update-tree-merge",
+                        "{}: seting lowest_known_dirty to true",
+                        self.id
+                    );
+                    */
+                    self.lowest_known_dirty = true;
                     // set the new lowest id
                     self.lowest_known_node_id = lowest_id_known_by_neighbor.clone();
-                    self.parent_maybe = new_parent_maybe;
+                    if self.parent_maybe.is_none() {
+                        merge_trees_ka = true;
+                    }
                 }
                 (std::cmp::Ordering::Less, false) => {
                     // lowest known id is less than old but not lower than my own id
@@ -105,25 +107,67 @@ impl ScomsTreeNode {
                 }
                 (std::cmp::Ordering::Greater, false) => {
                     // lowest id known by neigbors have gone up and isn't lower than my own id
+                    logy!(
+                        "trace-scoms-tree-node-update-tree-merge",
+                        "{:?} is setting it's parent to new lowestID",
+                        self.id,
+                    );
                     self.parent_maybe = None;
                 }
             }
+
+            if merge_trees_ka {
+                logy!(
+                    "trace-scoms-tree-node-update-tree-merge",
+                    "{:?} is setting it's parent to new lowestID",
+                    self.id,
+                );
+
+                self.lowest_known_dirty = false;
+                let new_parent_maybe = Some(neighbor_known_by);
+                // set the new lowest id
+                self.lowest_known_node_id = lowest_id_known_by_neighbor.clone();
+                logy!(
+                    "info",
+                    "{}: set its parent to {new_parent_maybe:?}",
+                    self.id
+                );
+                self.parent_maybe = new_parent_maybe;
+            }
         } else {
+            /*
             logy!(
                 "trace-scoms-tree-node-update",
                 "{:?} doesn't have neighbors:\n\n{:?}\n\n",
                 self.id,
                 self.neighbors
             );
+            */
         }
 
-        /*
-        // if we need a new parent look for one
-        if need_new_parent_ka {
-            if self.parent_maybe.is_some() {
-                logy!("info", "\n\n----\n\nresetting {:?}'s parent", self.id);
+        // update parent if needed
+        // find out if we need a new_parent?
+        let need_new_parent_ka = if let Some(parent_id) = &self.parent_maybe {
+            let x = ids_neighbors_that_went_down.contains(parent_id);
+            if x {
+                logy!(
+                    "trace-scoms-tree-node-update",
+                    "{:?}'s' parent, {parent_id:?}, went offline",
+                    self.id
+                );
             };
-            // find the oldest neighbor we know of the neighbors that have the lowest ID accessable thru them.
+            x
+        } else {
+            true
+        };
+
+        // if we need a new parent look for one
+        if need_new_parent_ka || heard_new_root_from_announcment_ka {
+            //logy!("debug", "\n{}:is this working\nneed_new_parent_ka:{need_new_parent_ka}\nheard_new_root_from_announcment_ka:{heard_new_root_from_announcment_ka}", self.id);
+            if self.parent_maybe.is_some() {
+                logy!("info", "resetting {:?}'s parent", self.id);
+            };
+            // find the oldest neighbor we know of the neighbors that have the lowest ID accessible thru them.
             if let Some(oldest_id) =
                 self.find_oldest_neighbor_that_the_lowest_id_can_be_accessed_thru()
             {
@@ -131,20 +175,41 @@ impl ScomsTreeNode {
                 if oldest_id.0 < self.id.0 {
                     logy!(
                         "trace-scoms-tree-node-update",
-                        "\n{:?} set its parent to {:?}",
+                        "{}: set its parent to {:?}",
                         self.id,
                         oldest_id
                     );
                     self.parent_maybe = Some(oldest_id.clone());
+
+                    logy!(
+                        "trace-scoms-tree-node-update-tree-merge",
+                        "{}: seting lowest_known_dirty to false",
+                        self.id
+                    );
+                    self.lowest_known_dirty = false;
+                    if heard_new_root_from_announcment_ka {
+                        logy!(
+                            "trace-scoms-tree-node-update-tree-merge",
+                            "{}: anouncing tree merger",
+                            self.id
+                        );
+                        let packet = ScomsTreePacket::TreeMerge {
+                            source: self.id.clone(),
+                            new_root: oldest_id.clone(),
+                        };
+                        logy!("info", "{}: sending Treemerge", self.id);
+                        let transmittion = Transmission::new(now, packet, 0.into());
+                        transmissions.push(transmittion);
+                    }
                 } else {
                     logy!(
                         "trace-scoms-tree-node-update",
-                        "\n{:?} failed to find a new parent",
+                        "{}: set its parent to None; failed to find a new parent",
                         self.id,
                     );
                     self.parent_maybe = None;
                 }
             }
-        }*/
+        }
     }
 }

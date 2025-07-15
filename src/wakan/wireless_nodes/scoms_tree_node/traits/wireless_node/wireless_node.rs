@@ -3,6 +3,8 @@ use std::{
     rc::Rc,
 };
 
+use qol::logy;
+
 use crate::wakan::{
     wireless_nodes::scoms_tree_node::gen_next_heartbeat_time, NodeId, Radio, RecievedTime,
     ScomsTreeNode, ScomsTreePacket, Time, Transmission, WirelessNode,
@@ -17,18 +19,47 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
         // Create a list to store transmissions we might generate during this tick
         let mut transmissions = Vec::new();
 
+        let mut merge_trees_ka = false;
+        let mut heard_new_root_from_announcment_ka = false;
+
         ////////////////////////////
         // Process each received packet
         for (recieved_time, packet, radio) in recieved_packets {
             match packet.as_ref() {
-                // We're only handling Beacon packets here
+                ScomsTreePacket::TreeMerge { source, new_root } => {
+                    if let Some(my_parent) = &self.parent_maybe {
+                        if source == my_parent {
+                            let info = self.neighbors.get_mut(my_parent).unwrap();
+                            if &info.lowest_accessible_thru <= new_root {
+                                logy!(
+                                    "info",
+                                    "{}:found a new lowest ID from {}'s new root announcement",
+                                    self.id,
+                                    source,
+                                );
+                                heard_new_root_from_announcment_ka = true;
+                                info.lowest_accessible_thru = new_root.clone();
+                            } else {
+                                logy!(
+                                    "error",
+                                    "{}:{} announced he found a new lowest id but it was higher than what we knew was their lowest id",
+                                    self.id,
+                                    source,
+                                )
+                            }
+                        }
+                    }
+                }
                 ScomsTreePacket::Beacon {
                     source,
                     neighbors,
                     parent_maybe,
                 } => self.handle_beacon(
+                    &mut merge_trees_ka,
                     neighbors,
                     parent_maybe.as_ref(),
+                    &mut transmissions,
+                    now,
                     source,
                     &recieved_time,
                     &radio,
@@ -38,7 +69,12 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
 
         ////////////////////////////
         // do any processing needed ths tick
-        self.update(now);
+        self.update(
+            merge_trees_ka,
+            heard_new_root_from_announcment_ka,
+            &mut transmissions,
+            now,
+        );
 
         ////////////////////////////
         // send an packets
@@ -63,7 +99,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
                             }
                         })
                         .map(|(neighbor_id, info)| {
-                            (neighbor_id.clone(), info.lowest_accessable_thru.clone())
+                            (neighbor_id.clone(), info.lowest_accessible_thru.clone())
                         })
                         .collect(), // Share our known neighbor list
                     self.parent_maybe.clone(),
@@ -87,6 +123,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
             neighbors: BTreeMap::new(),
             parent_maybe: None,
             children: BTreeSet::new(),
+            lowest_known_dirty: false,
         }
     }
 }

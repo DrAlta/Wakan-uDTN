@@ -8,29 +8,37 @@ pub struct NeighborInfo {
     pub first_seen: BTreeMap<Radio, Time>,
     pub last_seen: BTreeMap<Radio, Time>,
     pub neighbors_of_neighbor: BTreeSet<NodeId>,
-    pub lowest_accessable_thru: NodeId,
+    pub lowest_accessible_thru: NodeId,
+    pub lowest_id_known: NodeId,
 }
 #[allow(dead_code)]
 impl NeighborInfo {
-    pub fn simple_new(first_seen: BTreeMap<Radio, Time>, lowest_accessable_thru: NodeId) -> Self {
+    pub fn simple_new(
+        first_seen: BTreeMap<Radio, Time>,
+        lowest_accessible_thru: NodeId,
+        lowest_id_known: NodeId,
+    ) -> Self {
         Self {
             last_seen: first_seen.clone(),
             first_seen,
             neighbors_of_neighbor: BTreeSet::new(),
-            lowest_accessable_thru,
+            lowest_id_known,
+            lowest_accessible_thru,
         }
     }
     pub fn new(
         first_seen: BTreeMap<Radio, Time>,
         last_seen: BTreeMap<Radio, Time>,
         neighbors_of_neighbor: BTreeSet<NodeId>,
-        lowest_accessable_thru: NodeId,
+        lowest_accessible_thru: NodeId,
+        lowest_id_known: NodeId,
     ) -> Self {
         Self {
             first_seen,
             last_seen,
             neighbors_of_neighbor,
-            lowest_accessable_thru,
+            lowest_accessible_thru,
+            lowest_id_known,
         }
     }
     pub fn find_oldest_time(&self) -> Option<Time> {

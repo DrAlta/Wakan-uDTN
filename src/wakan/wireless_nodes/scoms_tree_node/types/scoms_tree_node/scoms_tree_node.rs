@@ -14,17 +14,18 @@ pub struct ScomsTreeNode {
     pub(in super::super::super) parent_maybe: Option<NodeId>,
     pub(in super::super::super) children: BTreeSet<NodeId>,
     pub(in super::super::super) lowest_known_node_id: NodeId,
+    pub(in super::super::super) lowest_known_dirty: bool, // `lowest_known_dirty` is part of the delay to give time for the lowest id in tree mergers to travel along the tree
 }
 
 impl ScomsTreeNode {
-    pub fn find_lowest_id_known_by_neighbor(&self) -> Option<(&NodeId, &NodeId)> {
+    pub fn find_lowest_id_known_by_neighbor(&self) -> Option<(NodeId, NodeId)> {
         let x = self
             .neighbors
             .iter()
             .map(|(neighbor_id, neighbor_info)| {
                 (
                     neighbor_id,
-                    &neighbor_info.lowest_accessable_thru,
+                    &neighbor_info.lowest_id_known,
                     neighbor_info.find_oldest_time(),
                 )
             })
@@ -36,16 +37,16 @@ impl ScomsTreeNode {
                 },
             )?;
 
-        Some((x.0, x.1))
+        Some((x.0.clone(), x.1.clone()))
     }
-    pub fn find_oldest_neighbor_that_the_lowest_id_can_be_accessed_thru(&self) -> Option<&NodeId> {
+    pub fn find_oldest_neighbor_that_the_lowest_id_can_be_accessed_thru(&self) -> Option<NodeId> {
         let x = self
             .neighbors
             .iter()
             .filter_map(|(neighbor_id, neighbor_info)| {
                 Some((
                     neighbor_id,
-                    &neighbor_info.lowest_accessable_thru,
+                    &neighbor_info.lowest_accessible_thru,
                     neighbor_info.find_oldest_time()?,
                 ))
             })
@@ -58,7 +59,7 @@ impl ScomsTreeNode {
             )?;
 
         if x.0 .0 < self.id.0 {
-            Some(x.0)
+            Some(x.0.clone())
         } else {
             None
         }

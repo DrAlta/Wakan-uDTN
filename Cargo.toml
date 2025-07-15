@@ -13,7 +13,8 @@ qol = { version = "0.1.19", git = "https://github.com/DrAlta/rust_quality_of_lif
 ordered-f32 = { version = "0.1.11", git = "https://github.com/DrAlta/rust-ordered-f32.git"}
 
 [features]
-default = ["error", "info", "trace", "trace-scoms-tree-node"]
+default = ["debug", "error", "info", "trace", "trace-scoms-tree-node"]
+debug = []
 error = []
 info = []
 info-parent-sim = []
@@ -24,4 +25,5 @@ trace-flood-node = []
 trace-scoms-tree-node = []
 trace-scoms-tree-node-handle-beacon = []
 trace-scoms-tree-node-update = []
+trace-scoms-tree-node-update-tree-merge = []
 trace-wakan-node = []
