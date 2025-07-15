@@ -26,7 +26,11 @@ pub struct WakamSim<P, N: WirelessNode<P>> {
         Radio,
     )>,
 }
-impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
+impl<
+        P: std::fmt::Debug + Ord + PartialOrd + Eq + PartialEq,
+        N: WirelessNode<P> + Ord + PartialOrd + Eq + PartialEq,
+    > WakamSim<P, N>
+{
     /// This function represents a single simulation step at the given time.
     pub fn tick(&mut self, time: Time) -> Option<Time> {
         let WakamSim {
@@ -141,6 +145,7 @@ impl<P: std::fmt::Debug, N: WirelessNode<P>> WakamSim<P, N> {
                     logy!("error", "could get outbound neighbors of {receiver}");
                     continue 'receivers;
                 };
+
                 let shared_packet = Rc::new(packet);
                 for neighbor_id in neighbor_ids {
                     if scheduled_transmission_time < time {

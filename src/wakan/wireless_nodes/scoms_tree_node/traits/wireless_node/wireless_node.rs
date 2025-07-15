@@ -26,14 +26,19 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
         // Process each received packet
         for (recieved_time, packet, radio) in recieved_packets {
             match packet.as_ref() {
-                ScomsTreePacket::TreeMerge { source, new_root } => {
+                ScomsTreePacket::TreeMerge {
+                    source,
+                    new_root,
+                    packet_id,
+                } => {
+                    logy!("debug", "\n\nTreeMerge{source}:{packet_id}");
                     if let Some(my_parent) = &self.parent_maybe {
                         if source == my_parent {
                             let info = self.neighbors.get_mut(my_parent).unwrap();
                             if &info.lowest_accessible_thru <= new_root {
                                 logy!(
                                     "info",
-                                    "{}:found a new lowest ID from {}'s new root announcement",
+                                    "{}:found a new lowest ID from {}'s new root announcement in packet:{packet_id}",
                                     self.id,
                                     source,
                                 );
@@ -42,7 +47,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
                             } else {
                                 logy!(
                                     "error",
-                                    "{}:{} announced he found a new lowest id but it was higher than what we knew was their lowest id",
+                                    "{}:{} announced{packet_id} he found a new lowest id but it was higher than what we knew was their lowest id",
                                     self.id,
                                     source,
                                 )
@@ -54,12 +59,14 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
                     source,
                     neighbors,
                     parent_maybe,
+                    packet_id,
                 } => self.handle_beacon(
                     &mut merge_trees_ka,
                     neighbors,
                     parent_maybe.as_ref(),
                     &mut transmissions,
                     now,
+                    *packet_id,
                     source,
                     &recieved_time,
                     &radio,
@@ -104,6 +111,11 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
                         .collect(), // Share our known neighbor list
                     self.parent_maybe.clone(),
                     self.id.clone(), // Identify ourself as the sender
+                    {
+                        let x = self.send_packet_count.clone();
+                        self.send_packet_count += 1;
+                        x
+                    },
                 ),
                 0.into(), // Some radio/channel priority abstraction
             ));
@@ -124,6 +136,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
             parent_maybe: None,
             children: BTreeSet::new(),
             lowest_known_dirty: false,
+            send_packet_count: 0,
         }
     }
 }

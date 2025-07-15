@@ -2,7 +2,10 @@ pub use macroquad::prelude::*;
 
 use crate::wakan::{Graph, Parent, WirelessNode};
 
-pub fn draw_parent_visuals<P, T: WirelessNode<P> + Parent>(
+pub fn draw_parent_visuals<
+    P: Ord + PartialOrd + Eq + PartialEq,
+    T: WirelessNode<P> + Parent + Ord + PartialOrd + Eq + PartialEq,
+>(
     arrow_head_size: f32,
     node_size: f32,
     graph: &Graph<P, T>,

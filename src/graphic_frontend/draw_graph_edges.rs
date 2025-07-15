@@ -2,7 +2,12 @@ pub use macroquad::prelude::*;
 
 use crate::wakan::{Graph, WirelessNode};
 
-pub fn draw_graph_edges<P, N: WirelessNode<P>>(graph: &Graph<P, N>) {
+pub fn draw_graph_edges<
+    P: Ord + PartialOrd + Eq + PartialEq,
+    N: WirelessNode<P> + Ord + PartialOrd + Eq + PartialEq,
+>(
+    graph: &Graph<P, N>,
+) {
     // Draw edges
     for node in graph.all_nodes() {
         for link_id in &node.outbound_links {

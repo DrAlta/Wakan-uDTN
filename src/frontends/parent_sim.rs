@@ -9,7 +9,10 @@ use crate::{
     wakan::{Parent, Time, WakamSim, WirelessNode},
 };
 
-pub async fn tick_sim<P: std::fmt::Debug, N: WirelessNode<P> + Parent>(
+pub async fn tick_sim<
+    P: std::fmt::Debug + Ord + PartialEq + Eq + PartialOrd,
+    N: WirelessNode<P> + Ord + PartialEq + Eq + PartialOrd + Parent,
+>(
     arrow_head_size: f32,
     node_size: f32,
     time_per_tick: f32,

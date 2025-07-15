@@ -15,6 +15,7 @@ pub struct ScomsTreeNode {
     pub(in super::super::super) children: BTreeSet<NodeId>,
     pub(in super::super::super) lowest_known_node_id: NodeId,
     pub(in super::super::super) lowest_known_dirty: bool, // `lowest_known_dirty` is part of the delay to give time for the lowest id in tree mergers to travel along the tree
+    pub(in super::super::super) send_packet_count: u64,
 }
 
 impl ScomsTreeNode {

@@ -17,6 +17,7 @@ impl ScomsTreeNode {
         parent_maybe: Option<&NodeId>,
         transmissions: &mut Vec<Transmission<ScomsTreePacket>>,
         now: Time,
+        packet_id: u64,
         source: &NodeId,
         recieved_time: &Time,
         radio: &Radio,
@@ -108,6 +109,11 @@ impl ScomsTreeNode {
                     let packet = ScomsTreePacket::TreeMerge {
                         source: self.id.clone(),
                         new_root: self.lowest_known_node_id.clone(),
+                        packet_id: {
+                            let x = self.send_packet_count.clone();
+                            self.send_packet_count += 1;
+                            x
+                        },
                     };
                     let transmittion = Transmission::new(now, packet, 0.into());
                     logy!("info", "{}: sending Treemerge", self.id);

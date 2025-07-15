@@ -1,6 +1,6 @@
 use ordered_f32::OrderedF32;
 use std::{
-    collections::{btree_map::Keys, BTreeMap, HashMap},
+    collections::{btree_map::Keys, BTreeMap, BTreeSet, HashMap},
     rc::Rc,
 };
 
@@ -13,7 +13,11 @@ pub struct Graph<P, N: WirelessNode<P>> {
     nodes: BTreeMap<NodeId, Node<P, N>>,
 }
 
-impl<P, N: WirelessNode<P>> Graph<P, N> {
+impl<
+        P: Ord + PartialEq + Eq + PartialOrd,
+        N: WirelessNode<P> + Ord + PartialEq + Eq + PartialOrd,
+    > Graph<P, N>
+{
     pub fn tick_node(
         &mut self,
         time: Time,
@@ -62,11 +66,11 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             .map(|node| node.outbound_links.contains(to))
             .unwrap_or(false)
     }
-    pub fn outbound_neighbor_ids(&self, id: &NodeId) -> Option<&Vec<NodeId>> {
+    pub fn outbound_neighbor_ids(&self, id: &NodeId) -> Option<&BTreeSet<NodeId>> {
         Some(&self.get_node(id)?.outbound_links)
     }
     // Get all
-    pub fn outbound_neighbors(&self, id: &NodeId) -> Option<Vec<&Node<P, N>>> {
+    pub fn outbound_neighbors(&self, id: &NodeId) -> Option<BTreeSet<&Node<P, N>>> {
         Some(
             self.get_node(id)?
                 .outbound_links
@@ -98,7 +102,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                     raw.x,
                     raw.y,
                     raw.outbound_links.clone(),
-                    Vec::new(),
+                    BTreeSet::new(),
                 ),
             );
         }
@@ -106,7 +110,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         for raw in &raw_nodes {
             for target_id in &raw.outbound_links {
                 if let Some(target_node) = nodes_map.get_mut(target_id) {
-                    target_node.inbound_links.push(raw.id.clone());
+                    target_node.inbound_links.insert(raw.id.clone());
                 }
             }
         }

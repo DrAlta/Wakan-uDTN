@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
 
 use crate::wakan::{Node, NodeId, WirelessNode};
@@ -7,7 +9,7 @@ pub struct RawNode {
     pub id: NodeId,
     pub x: f32,
     pub y: f32,
-    pub outbound_links: Vec<NodeId>,
+    pub outbound_links: BTreeSet<NodeId>,
 }
 
 impl<P, N: WirelessNode<P>> From<Node<P, N>> for RawNode {

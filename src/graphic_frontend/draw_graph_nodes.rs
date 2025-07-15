@@ -2,7 +2,13 @@ pub use macroquad::prelude::*;
 
 use crate::wakan::{Graph, WirelessNode};
 
-pub fn draw_graph_nodes<P, N: WirelessNode<P>>(node_size: f32, graph: &Graph<P, N>) {
+pub fn draw_graph_nodes<
+    P: Ord + PartialOrd + Eq + PartialEq,
+    N: WirelessNode<P> + Ord + PartialOrd + Eq + PartialEq,
+>(
+    node_size: f32,
+    graph: &Graph<P, N>,
+) {
     for node in graph.all_nodes() {
         draw_circle(node.x.into(), node.y.into(), node_size, BLUE);
         draw_text(

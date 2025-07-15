@@ -195,6 +195,11 @@ impl ScomsTreeNode {
                         );
                         let packet = ScomsTreePacket::TreeMerge {
                             source: self.id.clone(),
+                            packet_id: {
+                                let x = self.send_packet_count.clone();
+                                self.send_packet_count += 1;
+                                x
+                            },
                             new_root: oldest_id.clone(),
                         };
                         logy!("info", "{}: sending Treemerge", self.id);

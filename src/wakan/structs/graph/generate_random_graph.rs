@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use ghx_constrained_delaunay::{
     triangulation::TriangulationConfiguration, triangulation_from_2d_vertices,
     types::Vertex as Point,
@@ -36,7 +38,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                     id,
                     x,
                     y,
-                    outbound_links: Vec::new(),
+                    outbound_links: BTreeSet::new(),
                 });
             }
         }
@@ -70,8 +72,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
 
         // Step 4: Assign outbound links
         for (a, b) in &edge_set {
-            raw_nodes[a.0 as usize].outbound_links.push(b.clone());
-            raw_nodes[b.0 as usize].outbound_links.push(a.clone()); // Make it symmetric if desired
+            raw_nodes[a.0 as usize].outbound_links.insert(b.clone());
+            raw_nodes[b.0 as usize].outbound_links.insert(a.clone()); // Make it symmetric if desired
         }
 
         // Step 5: Build the full graph with inbound links
