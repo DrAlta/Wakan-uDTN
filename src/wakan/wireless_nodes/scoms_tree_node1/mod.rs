@@ -15,14 +15,13 @@
 //!
 //! that means is we are the parent of all are tree neighbors then are lowest known id
 //! will be lower than any id we know are neighbors know about
-mod find_lowest_id_lowest_accessible_thru_neighbor;
-pub use find_lowest_id_lowest_accessible_thru_neighbor::find_lowest_id_lowest_accessible_thru_neighbor;
+mod find_lowest_id_lowest_accessable_thru_neighbor;
+pub use find_lowest_id_lowest_accessable_thru_neighbor::find_lowest_id_lowest_accessable_thru_neighbor;
 mod gen_next_heartbeat_time;
 pub use gen_next_heartbeat_time::gen_next_heartbeat_time;
 mod traits;
 
 mod types;
-use types::NeighborInfo;
 pub use types::{ScomsTreeNode, ScomsTreePacket};
 
 const MAX_AGE: u64 = 25;

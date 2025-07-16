@@ -8,6 +8,7 @@ pub struct NeighborInfo {
     pub first_seen: BTreeMap<Radio, Time>,
     pub last_seen: BTreeMap<Radio, Time>,
     pub neighbors_of_neighbor: BTreeSet<NodeId>,
+    //    pub neighbors_of_neighbor: BTreeMap<NodeId, NeighborsNeighborInfo>, // don't do this. instead have just keep the neibhor neivher d adn then keep a hashmap of  NeighborsNeighborInfo
     pub lowest_accessible_thru: NodeId,
     pub lowest_id_known: NodeId,
 }

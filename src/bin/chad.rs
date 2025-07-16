@@ -1,7 +1,10 @@
 use macroquad::prelude::*;
 use std::env;
 
-use wakan_sim::wakan::{Frontend, Graph, RawNode, ScomsTreeNode, ScomsTreePacket, WakamSim};
+use wakan_sim::wakan::{
+    scoms_tree_node1::{ScomsTreeNode, ScomsTreePacket},
+    Frontend, Graph, RawNode, WakamSim,
+};
 
 #[macroquad::main("Wakan Sim")]
 pub async fn main() {

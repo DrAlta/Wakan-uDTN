@@ -8,14 +8,8 @@ type LowestKnownId = NodeId;
 pub enum ScomsTreePacket {
     Beacon {
         source: NodeId,
-        packet_id: u64,
         parent_maybe: Option<NodeId>,
         neighbors: BTreeMap<NodeId, LowestKnownId>,
-    },
-    TreeMerge {
-        source: NodeId,
-        packet_id: u64,
-        new_root: NodeId,
     },
 }
 
@@ -24,11 +18,9 @@ impl ScomsTreePacket {
         neighbors: BTreeMap<NodeId, LowestKnownId>,
         parent: Option<NodeId>,
         source: NodeId,
-        packet_id: u64,
     ) -> Self {
         Self::Beacon {
             source,
-            packet_id,
             neighbors,
             parent_maybe: parent,
         }
@@ -42,23 +34,11 @@ impl fmt::Display for ScomsTreePacket {
                 source,
                 neighbors,
                 parent_maybe: parent,
-                packet_id,
             } => {
                 write!(
                     f,
-                    "Beacon{{source:{}, parent:{:?}, neighbors:{:?}, packet id: {}}})",
-                    source, parent, neighbors, packet_id
-                )
-            }
-            ScomsTreePacket::TreeMerge {
-                source,
-                new_root,
-                packet_id,
-            } => {
-                write!(
-                    f,
-                    "TreeMerge{{source:{}, new_root:{}, packet id: {}}})",
-                    source, new_root, packet_id
+                    "Beacon{{source:{}, parent:{:?}, neighbors:{:?}}})",
+                    source, parent, neighbors
                 )
             }
         }

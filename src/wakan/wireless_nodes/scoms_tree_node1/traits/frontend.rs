@@ -1,7 +1,9 @@
 use crate::{
     frontends::parent_sim,
-    wakan::{Frontend, ScomsTreeNode, ScomsTreePacket, WakamSim},
+    wakan::{Frontend, WakamSim},
 };
+
+use super::super::{ScomsTreeNode, ScomsTreePacket};
 
 impl Frontend for WakamSim<ScomsTreePacket, ScomsTreeNode> {
     type Settings = (f32, f32, f32);

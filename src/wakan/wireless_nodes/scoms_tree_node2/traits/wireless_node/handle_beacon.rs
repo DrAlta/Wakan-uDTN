@@ -2,13 +2,12 @@ use std::collections::BTreeMap;
 
 use qol::logy;
 
-use crate::wakan::{
-    wireless_nodes::scoms_tree_node::{
-        find_lowest_id_lowest_accessible_thru_neighbor, types::NeighborInfo,
-    },
-    NodeId, Radio, ScomsTreeNode, ScomsTreePacket, Time, Transmission,
-};
+use crate::wakan::{NodeId, Radio, Time, Transmission};
 
+use super::super::super::{
+    find_lowest_id_lowest_accessible_thru_neighbor, types::NeighborInfo, ScomsTreeNode,
+    ScomsTreePacket,
+};
 impl ScomsTreeNode {
     pub fn handle_beacon(
         &mut self,
@@ -17,7 +16,7 @@ impl ScomsTreeNode {
         parent_maybe: Option<&NodeId>,
         transmissions: &mut Vec<Transmission<ScomsTreePacket>>,
         now: Time,
-        packet_id: u64,
+        _packet_id: u64,
         source: &NodeId,
         recieved_time: &Time,
         radio: &Radio,

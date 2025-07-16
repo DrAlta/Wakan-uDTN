@@ -4,7 +4,8 @@ use std::{
     hash::Hash,
 };
 
-use crate::wakan::{wireless_nodes::scoms_tree_node::NeighborInfo, NodeId, Time};
+use super::super::NeighborInfo;
+use crate::wakan::{NodeId, Time};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ScomsTreeNode {
