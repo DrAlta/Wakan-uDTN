@@ -2,6 +2,8 @@ mod beepy_node;
 pub use beepy_node::{BeepyNode, BeepyPacket};
 mod flood_node;
 pub use flood_node::{FloodNode, FloodPacket};
+mod local_minimum_cluster_node;
+pub use local_minimum_cluster_node::{LocalMinimumClusterNode, LocalMinimumClusterPacket};
 pub mod scoms_tree_node1;
 pub mod scoms_tree_node2;
 mod wakan_node;

@@ -1,3 +1,5 @@
+mod cluster;
+pub use cluster::Cluster;
 mod frontend;
 pub use frontend::Frontend;
 mod parent;

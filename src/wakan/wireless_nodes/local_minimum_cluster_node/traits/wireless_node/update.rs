@@ -1,8 +1,8 @@
 use qol::logy;
 
-use super::super::super::{ScomsTreeNode, MAX_AGE};
+use super::super::super::{LocalMinimumClusterNode, MAX_AGE};
 use crate::wakan::Time;
-impl ScomsTreeNode {
+impl LocalMinimumClusterNode {
     pub fn update(&mut self, now: Time) {
         // cutoff is the limit for consider nodes offline if we haven't heard from them
         // on or after cutoff then we cosider they have gone offline

@@ -4,7 +4,7 @@ mod traits;
 pub use traits::{Frontend, Parent, WirelessNode};
 mod wireless_nodes;
 pub use wireless_nodes::{
-    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, FloodNode, FloodPacket, WakanNode,
+    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, FloodNode, FloodPacket, LocalMinimumClusterNode, LocalMinimumClusterPacket, WakanNode,
     WakanPacket,
 };
 
