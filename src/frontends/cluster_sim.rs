@@ -6,12 +6,13 @@ use qol::logy;
 use crate::{
     detect_cycles::detect_cycles_with_roots,
     frontends::util::{draw_graph_edges, draw_graph_nodes, draw_parent_visuals},
-    wakan::{Parent, Time, WakamSim, WirelessNode},
+    wakan::{Cluster, Parent, Time, WakamSim, WirelessNode},
 };
 
 pub async fn tick_sim<
+    Cid,
     P: std::fmt::Debug + Ord + PartialEq + Eq + PartialOrd,
-    N: WirelessNode<P> + Ord + PartialEq + Eq + PartialOrd + Parent,
+    N: WirelessNode<P> + Ord + PartialEq + Eq + PartialOrd + Parent + Cluster<Cid>,
 >(
     arrow_head_size: f32,
     node_size: f32,
@@ -28,6 +29,17 @@ pub async fn tick_sim<
         draw_graph_edges(sim.get_graph());
         draw_graph_nodes(node_size, sim.get_graph());
         draw_parent_visuals(arrow_head_size, node_size, sim.get_graph());
+
+        println!(
+            // ToDo
+            "{:?}",
+            {
+                let _ = sim
+                    .get_graph()
+                    .all_nodes()
+                    .map(|x| x.wireless_node.get_cluster_id());
+            }
+        );
 
         time += get_frame_time();
         if time >= time_per_tick {
