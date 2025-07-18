@@ -1,6 +1,7 @@
-use std::collections::BTreeSet;
+use std::{collections::{BTreeMap, BTreeSet}, hash::{DefaultHasher, Hash, Hasher}};
 
-use crate::wakan::{wireless_nodes::zillions_of_trees_node::structs::{neighbor_info, ZillionsOfTreesPacket}, RecievedTime, WirelessNode, ZillionsOfTreesNode};
+use crate::wakan::WirelessNode;
+use super::super::{MAX_AGE, ZillionsOfTreesNode, ZillionsOfTreesPacket};
 
 impl WirelessNode<ZillionsOfTreesPacket> for ZillionsOfTreesNode{
     fn tick(
@@ -8,53 +9,48 @@ impl WirelessNode<ZillionsOfTreesPacket> for ZillionsOfTreesNode{
         now: crate::wakan::Time,
         recieved_packets: Vec<(crate::wakan::RecievedTime, std::rc::Rc<ZillionsOfTreesPacket>, crate::wakan::Radio)>,
     ) -> Result<Vec<crate::wakan::Transmission<ZillionsOfTreesPacket>>, String> {
+        let mut transmissions = Vec::new();
 
-        for (recieved_time, packet_rc, _radio) in recieved_packets{
+        // handle receptions
+        for (recieved_time, packet_rc, radio) in recieved_packets{
             let packet = packet_rc.as_ref();
             match packet{
-                ZillionsOfTreesPacket::Beacon { source, neighbors } => {
-                    let mut lowlow = BTreeSet::new();
-                    let mut lowhigh = BTreeSet::new();
-                    let mut highlow = BTreeSet::new();
-                    let mut highhigh = BTreeSet::new();
-                    for (neighbor_id, accessible) in neighbors {
-                        if neighbor_id.0 != self.id.0 {
-                            let (low, high) = if source.0 < self.id.0 {
-                                (&mut lowlow, &mut lowhigh)
-                            } else {
-                                (&mut highlow, &mut highhigh)
-                            };
-                            for x in accessible {
-                                if x.0 < self.id.0 {
-                                    low.insert(x.clone());
-                                } else {
-                                    high.insert(x.clone());
-                                }
-                            }
-                        }
-                    }
-
-                    /*
-                    for (neighbor_id, (lowest_accessible, highest_accessible)) in neighbors {
-                        if source.id.0 < self.id.0 {
-                            for x in lowest_accessible {
-                                low.insert(x.clone());
-                            }
-                        } else if source.id.0 > self.id.0 {
-                            for x in highest_accessible {
-                                high.insert(x.clone());
-                            }
-                        }
-                    }
-                    */
-                },
-            };
+                ZillionsOfTreesPacket::Beacon { source: neighbor_id, neighbors: neighbors_neighbors, princess } => {
+                    self.handle_beacon(neighbor_id, neighbors_neighbors, princess, recieved_time, &radio);
+                }
+            }
         }
-        todo!()
 
+        // update
+        self.update(now);
+
+
+        // handles transmittions
+        if now >= self.next_beacon {
+            let mut hasher = DefaultHasher::new();
+            now.hash(&mut hasher);
+            self.id.0.hash(&mut hasher);
+            let hash = hasher.finish();
+            self.next_beacon = now + (hash % MAX_AGE);
+            transmissions.push(self.generate_beacon());
+        }
+
+        Ok(transmissions)
     }
 
     fn new(id: crate::wakan::NodeId) -> Self {
-        todo!("{}", id)
+        let mut x = ZillionsOfTreesNode{ 
+            id: id.clone(),
+            queen: id.clone(),
+            princess: id, 
+            neighbors: BTreeMap::new(), 
+            tree_neighbors: BTreeSet::new(),
+            next_beacon: 0,
+        };
+        let mut hasher = DefaultHasher::new();
+        x.id.0.hash(&mut hasher);
+        let hash = hasher.finish();
+        x.next_beacon = hash % MAX_AGE;
+        x
     }
 }
