@@ -10,7 +10,7 @@ pub type Coord = (OrderedF32, OrderedF32);
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Graph<P, N: WirelessNode<P>> {
-    nodes: BTreeMap<NodeId, Node<P, N>>,
+    pub(super) nodes: BTreeMap<NodeId, Node<P, N>>,
 }
 
 impl<

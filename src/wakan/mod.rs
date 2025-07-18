@@ -1,12 +1,14 @@
 mod structs;
-pub use structs::{Graph, Node, NodeId, Radio, RawNode, Transmission, WakamSim};
+pub use structs::{Graph, Node, NodeId, Radio, RawNode, Transmission, WakamSim, range::{Case, Range, find_least_error_among_all}};
 mod traits;
-pub use traits::{Frontend, Parent, WirelessNode};
+pub use traits::{Cluster, Frontend, Parent, WirelessNode};
 mod wireless_nodes;
 pub use wireless_nodes::{
-    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, FloodNode, FloodPacket, LocalMinimumClusterNode, LocalMinimumClusterPacket, WakanNode,
-    WakanPacket,
+    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, FloodNode, FloodPacket,
+    LocalMinimumClusterNode, LocalMinimumClusterPacket, WakanNode, WakanPacket, ZillionsOfTreesNode,
 };
+
+pub const SIM_SIZE: usize = 25;
 
 pub type Time = u64;
 

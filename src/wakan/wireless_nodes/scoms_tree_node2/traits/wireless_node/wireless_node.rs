@@ -7,7 +7,7 @@ use qol::logy;
 
 use crate::wakan::{NodeId, Radio, RecievedTime, Time, Transmission, WirelessNode};
 
-use super::super::super::{gen_next_heartbeat_time, ScomsTreeNode, ScomsTreePacket};
+use super::super::super::{ScomsTreeNode, ScomsTreePacket};
 
 impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
     fn tick(
@@ -88,7 +88,7 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
         // Check if it's time to send out a new beacon
         if now >= self.next_beacon {
             // Schedule the next heartbeat
-            self.next_beacon = gen_next_heartbeat_time(self.next_beacon);
+            self.next_beacon = self.gen_next_heartbeat_time(now);
 
             // Construct a new Beacon packet advertising our own ID
             // and all known neighbors — this helps others learn about us.
@@ -126,16 +126,18 @@ impl WirelessNode<ScomsTreePacket> for ScomsTreeNode {
     }
 
     fn new(id: NodeId) -> Self {
-        let next_beacon = gen_next_heartbeat_time(id.0 as Time);
-        Self {
+        let mut x = Self {
             lowest_known_node_id: id.clone(),
-            id,
-            next_beacon,
+            id: id.clone(),
+            next_beacon: 0,
             neighbors: BTreeMap::new(),
             parent_maybe: None,
             children: BTreeSet::new(),
             lowest_known_dirty: false,
             send_packet_count: 0,
-        }
+        };
+        x.next_beacon = x.gen_next_heartbeat_time(id.0 as Time);
+
+        x
     }
 }

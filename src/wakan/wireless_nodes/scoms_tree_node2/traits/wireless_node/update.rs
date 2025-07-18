@@ -49,6 +49,22 @@ impl ScomsTreeNode {
             }
         });
 
+        // find out if we need a new_parent?
+        let need_new_parent_ka = if let Some(parent_id) = &self.parent_maybe {
+            let x = ids_neighbors_that_went_down.contains(parent_id);
+            if x {
+                logy!(
+                    "trace-scoms-tree-node-update",
+                    "{:?}'s' parent, {parent_id:?}, went offline",
+                    self.id
+                );
+                self.parent_maybe = None;
+            };
+            x
+        } else {
+            true
+        };
+
         if let Some((neighbor_known_by, lowest_id_known_by_neighbor)) =
             self.find_lowest_id_known_by_neighbor()
         {
@@ -143,23 +159,18 @@ impl ScomsTreeNode {
                 self.neighbors
             );
             */
+            if need_new_parent_ka {
+                logy!(
+                    "trace-scoms-tree-node-update",
+                    "{}: now canidates for new parent",
+                    self.id,
+                    self.neighbors
+                );
+                self.parent_maybe = None;
+            }
         }
 
         // update parent if needed
-        // find out if we need a new_parent?
-        let need_new_parent_ka = if let Some(parent_id) = &self.parent_maybe {
-            let x = ids_neighbors_that_went_down.contains(parent_id);
-            if x {
-                logy!(
-                    "trace-scoms-tree-node-update",
-                    "{:?}'s' parent, {parent_id:?}, went offline",
-                    self.id
-                );
-            };
-            x
-        } else {
-            true
-        };
 
         // if we need a new parent look for one
         if need_new_parent_ka || heard_new_root_from_announcment_ka {

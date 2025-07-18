@@ -1,3 +1,6 @@
+//! 
+//! * every node is a parent
+//! ** is is parent tree with grandchildren that are with a lower id than itself
 mod beepy_node;
 pub use beepy_node::{BeepyNode, BeepyPacket};
 mod flood_node;
@@ -8,3 +11,5 @@ pub mod scoms_tree_node1;
 pub mod scoms_tree_node2;
 mod wakan_node;
 pub use wakan_node::{WakanNode, WakanPacket};
+mod zillions_of_trees_node;
+pub use zillions_of_trees_node::ZillionsOfTreesNode;

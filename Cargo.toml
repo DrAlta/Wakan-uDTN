@@ -11,6 +11,7 @@ ghx_constrained_delaunay = "0.2.0"
 rand = "0.9.1"
 qol = { version = "0.1.19", git = "https://github.com/DrAlta/rust_quality_of_life.git"}
 ordered-f32 = { version = "0.1.11", git = "https://github.com/DrAlta/rust-ordered-f32.git"}
+itertools = "0.14.0"
 
 [features]
 default = ["debug", "error", "info", "trace", "trace-scoms-tree-node"]

@@ -5,7 +5,9 @@ use std::{
 
 use crate::wakan::{NodeId, Radio, RecievedTime, Time, Transmission, WirelessNode};
 
-use super::super::super::{gen_next_heartbeat_time, LocalMinimumClusterNode, LocalMinimumClusterPacket};
+use super::super::super::{
+    gen_next_heartbeat_time, LocalMinimumClusterNode, LocalMinimumClusterPacket,
+};
 
 impl WirelessNode<LocalMinimumClusterPacket> for LocalMinimumClusterNode {
     fn tick(

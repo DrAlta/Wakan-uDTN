@@ -3,7 +3,7 @@ use std::env;
 
 use wakan_sim::wakan::{
     scoms_tree_node1::{ScomsTreeNode, ScomsTreePacket},
-    Frontend, Graph, RawNode, WakamSim,
+    Frontend, Graph, RawNode, WakamSim, SIM_SIZE,
 };
 
 #[macroquad::main("SCoMS v1 Sim")]
@@ -18,7 +18,7 @@ pub async fn main() {
 
         Graph::from_raw_nodes(raw_nodes)
     } else {
-        Graph::generate_random_graph(25, screen_width(), screen_height(), 15.0)
+        Graph::generate_random_graph(SIM_SIZE, screen_width(), screen_height(), 15.0)
     };
     let mut sim = WakamSim::new(graph);
 

@@ -10,5 +10,7 @@ mod raw_node;
 pub use raw_node::RawNode;
 mod wakan_sim;
 pub use wakan_sim::WakamSim;
+pub mod range;
+
 mod transmission;
 pub use transmission::Transmission;

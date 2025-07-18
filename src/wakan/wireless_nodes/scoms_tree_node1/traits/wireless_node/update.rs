@@ -133,6 +133,14 @@ impl ScomsTreeNode {
                 self.id,
                 self.neighbors
             );
+            if need_new_parent_ka {
+                logy!(
+                    "trace-scoms-tree-node-update",
+                    "{:?}: no parent canidates clearing parent",
+                    self.id,
+                );
+                self.parent_maybe = None;
+            }
         }
 
         /*
