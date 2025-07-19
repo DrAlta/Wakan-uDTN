@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use ghx_constrained_delaunay::types::Vertex as Point;
+use qol::logy;
 
 use crate::wakan::{Graph, NodeId, RawNode, WirelessNode};
 
@@ -20,47 +21,58 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         // crate top(unto the gap)
         for i in 0..thinkness{
             let start = (side_length + gap) - (i + 1);
-            println!("start:{start}");
+    
             let y = i as f32 * spacing + kerning.y as f32;
 
             let start_id_of_next_row= {
-                let mut acc = thinkness;
+                let mut acc = side_length;
                 for j in 0..i{
-                    acc += thinkness + j + 1
+                    acc += side_length + j + 1
                 };
                 acc
             };
 
             for j in 0..side_length + i{
-                println!("start + j = {}", start + j);
                 let x = ((start as f32 * 0.5) + j  as f32) * spacing + kerning.x as f32 ;
 
                 let id = NodeId::from(node_id_counter);
                 node_id_counter += 1;
                 let outbound_links = if i < thinkness-1 {
+                    logy!("debug", "i < thinkness-1");
                     BTreeSet::from([
                         NodeId::from(start_id_of_next_row + j),
                         NodeId::from(start_id_of_next_row + j + 1),
                     ])
                 } else {
-                    if j < thinkness - 1/* || j > thinkness + gap*/ {
+                    if j < thinkness - 1 {
+                        logy!("debug", "j < thinkness - 1");
+
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row + j),
                             NodeId::from(start_id_of_next_row + j + 1),
+                        ])
+                    } else if j > thinkness + gap -1 {
+                        logy!("debug", "j > thinkness + gap");
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j - gap),
+                            NodeId::from(start_id_of_next_row + j + 1 -gap),
                         ])
                     } else if j == thinkness -1 {
+                        logy!("debug", "j == thinkness -1");
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row + j),
                         ])
-                    } else if j >= thinkness && j < thinkness + gap {
+                    } else if j >= thinkness && j < thinkness + gap - 1{
+                        logy!("debug", ">= thinkness && j < thinkness + gap - 1");
                         BTreeSet::new()
-                    } else if j == thinkness + gap {
+                    } else if j == thinkness + gap - 1 {
+                        logy!("debug", "j == thinkness + gap - 1");
                         BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + j + 1),
+                            NodeId::from(start_id_of_next_row + j ),
                         ])
                     } else {
-                        BTreeSet::new()
-//                        unreachable!("j:{j}")
+                        //BTreeSet::new()
+                        unreachable!("j:{j}")
                     }
                 };
                 println!("node {id} : {outbound_links:?}");
@@ -75,37 +87,39 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         }
 
         //temp
-        /*
         let y = (thinkness as f32 * spacing) + kerning.y as f32;
-        for i in 0..thinkness {
-            let x = ( spacing * i as f32 ) + kerning.x as f32;
+        for i in 0..gap {
+                let start = (side_length + gap) - (i + 1 + thinkness);
+                for j in 0..thinkness {
+                let x = ( (start as f32 * 0.5) + j as f32) * spacing + kerning.x as f32;
 
-            let id = NodeId::from(node_id_counter);
-            node_id_counter += 1;
+                let id = NodeId::from(node_id_counter);
+                node_id_counter += 1;
 
-            raw_nodes.push(RawNode {
-                id,
-                x,
-                y,
-                outbound_links: BTreeSet::new(),
-            });
-            
+                raw_nodes.push(RawNode {
+                    id,
+                    x,
+                    y,
+                    outbound_links: BTreeSet::new(),
+                });
+                
+            }
+            for j in 0..thinkness {
+                let x = ( (start as f32 * 0.5) + (j + thinkness + gap) as f32) * spacing + kerning.x as f32;
+//                let x =  (spacing * (j +  thinkness + gap) as f32 )  + kerning.x as f32;
+
+                let id = NodeId::from(node_id_counter);
+                node_id_counter += 1;
+
+                raw_nodes.push(RawNode {
+                    id,
+                    x,
+                    y,
+                    outbound_links: BTreeSet::new(),
+                });
+                
+            }
         }
-        for i in 0..thinkness {
-            let x =  (spacing * (i +  thinkness + gap) as f32 )  + kerning.x as f32;
-
-            let id = NodeId::from(node_id_counter);
-            node_id_counter += 1;
-
-            raw_nodes.push(RawNode {
-                id,
-                x,
-                y,
-                outbound_links: BTreeSet::new(),
-            });
-            
-        }
-*/
 
 
 /*
