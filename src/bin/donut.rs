@@ -9,7 +9,7 @@ use wakan_sim::wakan::{
 pub async fn main() {
     let graph: Graph<BeepyPacket, BeepyNode> = Graph::generate_donut_graph(
         3,
-        1,
+        2,
         75.0, 
         Point::new(50.0,50.0)
     );
