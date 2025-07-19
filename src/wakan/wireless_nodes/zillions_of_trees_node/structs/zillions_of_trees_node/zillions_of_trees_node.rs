@@ -12,6 +12,7 @@ pub struct ZillionsOfTreesNode{
     pub princess: NodeId,
     pub neighbors: BTreeMap<NodeId, NeighborInfo>,
     pub tree_neighbors:  BTreeSet<NodeId>,
+    pub parent_maybe: Option<NodeId>,
 
     // bookkeeping
     pub next_beacon: Time,

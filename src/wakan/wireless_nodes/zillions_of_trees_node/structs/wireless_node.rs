@@ -45,6 +45,7 @@ impl WirelessNode<ZillionsOfTreesPacket> for ZillionsOfTreesNode{
             princess: id, 
             neighbors: BTreeMap::new(), 
             tree_neighbors: BTreeSet::new(),
+            parent_maybe: None,
             next_beacon: 0,
         };
         let mut hasher = DefaultHasher::new();

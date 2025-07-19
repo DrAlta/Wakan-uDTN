@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
 
+use qol::logy;
+
 use crate::wakan::{NodeId, Time};
 
 use super::super::super::{MAX_AGE, ZillionsOfTreesNode};
@@ -77,7 +79,7 @@ impl ZillionsOfTreesNode{
                 princess_inner = tree_neighbor_info.princess.0;
             }
         }
-        let heard_new_princess_from_announcment_ka = if princess_inner != self.princess.id{
+        let heard_new_princess_from_announcment_ka = if princess_inner != self.princess.0 {
             self.princess = NodeId(princess_inner);
             true
         } else {
@@ -86,54 +88,28 @@ impl ZillionsOfTreesNode{
 
         // update are tree parent
         // do we need to find a new parent
-        let current_parent_invalid = if let Some(parent) = self.parent_maybe {
+        let current_parent_invalid = if let Some(parent) = &self.parent_maybe {
             gone_down.contains(parent) || ! self.tree_neighbors.contains(parent)
         } else {
             true
         };
 
         if heard_new_princess_from_announcment_ka || current_parent_invalid {
-if let Some(oldest_id) =
+            if let Some(oldest_id) =
                 self.find_oldest_tree_neighbor_that_the_lowest_id_can_be_accessed_thru()
             {
                 // if we found out set it to are new parent
                 if oldest_id.0 < self.id.0 {
                     logy!(
-                        "trace-scoms-tree-node-update",
+                        "zillions-of-trees-node-update",
                         "{}: set its parent to {:?}",
                         self.id,
                         oldest_id
                     );
                     self.parent_maybe = Some(oldest_id.clone());
-
-                    logy!(
-                        "trace-scoms-tree-node-update-tree-merge",
-                        "{}: seting lowest_known_dirty to false",
-                        self.id
-                    );
-                    self.lowest_known_dirty = false;
-                    if heard_new_root_from_announcment_ka {
-                        logy!(
-                            "trace-scoms-tree-node-update-tree-merge",
-                            "{}: anouncing tree merger",
-                            self.id
-                        );
-                        let packet = ScomsTreePacket::TreeMerge {
-                            source: self.id.clone(),
-                            packet_id: {
-                                let x = self.send_packet_count.clone();
-                                self.send_packet_count += 1;
-                                x
-                            },
-                            new_root: oldest_id.clone(),
-                        };
-                        logy!("info", "{}: sending Treemerge", self.id);
-                        let transmittion = Transmission::new(now, packet, 0.into());
-                        transmissions.push(transmittion);
-                    }
                 } else {
                     logy!(
-                        "trace-scoms-tree-node-update",
+                        "zillions-of-trees-node-update",
                         "{}: set its parent to None; failed to find a new parent",
                         self.id,
                     );
@@ -141,7 +117,5 @@ if let Some(oldest_id) =
                 }
             }
         }
-
-
     }
 }

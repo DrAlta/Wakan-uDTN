@@ -48,7 +48,7 @@ impl NeighborInfo{
         .chain(self.tree.first().iter())
         .min_by(
             |a,b|
-            a.0.cmp(b.0)
-        ).cloned()
+            a.0.cmp(&b.0)
+        ).map(|&x| x.clone())
     }
 }

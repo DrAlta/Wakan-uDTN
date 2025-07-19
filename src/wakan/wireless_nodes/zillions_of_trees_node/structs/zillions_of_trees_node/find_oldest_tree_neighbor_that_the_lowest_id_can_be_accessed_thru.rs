@@ -1,8 +1,10 @@
-use crate::wakan::ZillionsOfTreesNode;
+use std::cmp::Ordering;
+
+use crate::wakan::{NodeId, ZillionsOfTreesNode};
 
 impl ZillionsOfTreesNode {
-    pub fn find_oldest_tree_neighbor_that_the_lowest_id_can_be_accessed_thru(&self) -> NodeId {
-        self
+    pub fn find_oldest_tree_neighbor_that_the_lowest_id_can_be_accessed_thru(&self) -> Option<NodeId> {
+        let (neighbor_id,_,_) = self
             .tree_neighbors
             .iter()
             .filter_map(|neighbor_id| {
@@ -19,6 +21,7 @@ impl ZillionsOfTreesNode {
                     Ordering::Equal => a_age.cmp(b_age),
                     Ordering::Greater => Ordering::Greater,
                 },
-            )
+            )?;
+            Some(neighbor_id.clone())
     }
 }
