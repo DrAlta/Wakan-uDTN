@@ -1,19 +1,21 @@
 pub use macroquad::prelude::*;
 
-use crate::wakan::{Graph, Parent, WirelessNode};
+use crate::wakan::{Graph, WirelessNode};
 
-pub fn draw_parent_visuals<
+pub fn draw_directed_edges<
     P: Ord + PartialOrd + Eq + PartialEq,
-    T: WirelessNode<P> + Parent + Ord + PartialOrd + Eq + PartialEq,
+    T: WirelessNode<P> + Ord + PartialOrd + Eq + PartialEq,
 >(
     arrow_head_size: f32,
     node_size: f32,
     graph: &Graph<P, T>,
 ) {
+    let draw_at_tail = true;
+
+    // Draw edges
     for node in graph.all_nodes() {
-        let draw_at_tail = true;
-        if let Some(parent_id) = node.wireless_node.get_parent() {
-            if let Some(target) = graph.get_node(&parent_id) {
+        for link_id in &node.outbound_links {
+            if let Some(target) = graph.get_node(link_id) {
                 // Perpendicular vector (90° counter-clockwise)
                 let head = vec2(node.x.into(), node.y.into());
                 let tail = vec2(target.x.into(), target.y.into());
@@ -33,18 +35,16 @@ pub fn draw_parent_visuals<
                     )
                 };
                 let arrow_point = offset + (perp * arrow_head_size);
+                draw_triangle(arrow_tip, arrow_point, offset, RED);
                 draw_line(
-                    arrow_tip.x,
-                    arrow_tip.y,
                     node.x.into(),
                     node.y.into(),
-                    1.0,
-                    BLACK,
+                    target.x.into(),
+                    target.y.into(),
+                    2.0,
+                    GRAY,
                 );
-                draw_triangle(arrow_tip, arrow_point, offset, RED);
             }
-        } else {
-            draw_circle(node.x.into(), node.y.into(), 5.0, GREEN);
         }
     }
 }

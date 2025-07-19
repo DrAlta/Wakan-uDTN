@@ -26,7 +26,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             let start_id_of_next_row= {
                 let mut acc = thinkness;
                 for j in 0..i{
-                    acc += thinkness + j
+                    acc += thinkness + j + 1
                 };
                 acc
             };
@@ -71,6 +71,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                     outbound_links,
                 });
             }
+            println!("----");
         }
 
         //temp

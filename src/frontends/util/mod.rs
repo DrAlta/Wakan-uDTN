@@ -1,3 +1,5 @@
+mod draw_directed_edges;
+pub use draw_directed_edges::draw_directed_edges;
 mod draw_graph_edges;
 pub use draw_graph_edges::draw_graph_edges;
 mod draw_graph_nodes;
