@@ -14,9 +14,7 @@ fn compute_error<T>(a: &Range<T>, b: &Range<T>) -> u64 {
     dist * max.number_of_nodes as u64
 }
 
-fn find_best_pair<T: Copy>(
-    ranges: &[Range<T>],
-) -> Option<((usize, usize), u64)> {
+fn find_best_pair<T: Copy>(ranges: &[Range<T>]) -> Option<((usize, usize), u64)> {
     ranges
         .iter()
         .enumerate()
@@ -55,8 +53,8 @@ pub fn find_least_error_among_all<T: Copy>(
 ) -> Option<Case> {
     let best_a = find_best_pair(a_ranges).map(|((i, j), error)| Case::A((i, j), error));
     let best_b = find_best_pair(b_ranges).map(|((i, j), error)| Case::B((i, j), error));
-    let best_cross = find_best_across(a_ranges, b_ranges)
-        .map(|((i, j), error)| Case::C { a: i, b: j, error });
+    let best_cross =
+        find_best_across(a_ranges, b_ranges).map(|((i, j), error)| Case::C { a: i, b: j, error });
 
     [best_a, best_b, best_cross]
         .into_iter()

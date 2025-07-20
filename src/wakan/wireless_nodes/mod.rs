@@ -1,4 +1,4 @@
-//! 
+//!
 //! * every node is a parent
 //! ** is is parent tree with grandchildren that are with a lower id than itself
 mod beepy_node;

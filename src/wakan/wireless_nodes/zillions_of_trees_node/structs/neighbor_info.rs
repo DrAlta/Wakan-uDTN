@@ -1,9 +1,12 @@
-use std::{cmp::Ordering, collections::{BTreeMap, BTreeSet}};
+use std::{
+    cmp::Ordering,
+    collections::{BTreeMap, BTreeSet},
+};
 
 use crate::wakan::{NodeId, Radio, Time};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NeighborInfo{
+pub struct NeighborInfo {
     pub queen: NodeId,
     pub princess: NodeId,
 
@@ -12,9 +15,8 @@ pub struct NeighborInfo{
 
     pub first_seen: BTreeMap<Radio, Time>,
     pub last_seen: BTreeMap<Radio, Time>,
-
 }
-impl NeighborInfo{
+impl NeighborInfo {
     pub fn find_last_seen(&self) -> Option<(&Radio, &Time)> {
         self.last_seen
             .iter()
@@ -23,7 +25,7 @@ impl NeighborInfo{
                 Ordering::Equal => ar.cmp(br),
                 Ordering::Greater => Ordering::Greater,
             })
-    }    
+    }
 
     pub fn find_oldest_time(&self) -> Option<Time> {
         Some(
@@ -42,13 +44,13 @@ impl NeighborInfo{
                 Ordering::Equal => ar.cmp(br),
                 Ordering::Greater => Ordering::Greater,
             })
-    }    
+    }
     pub fn find_lowest_id_accessible_thru(&self) -> Option<NodeId> {
-        self.flow.first().iter()
-        .chain(self.tree.first().iter())
-        .min_by(
-            |a,b|
-            a.0.cmp(&b.0)
-        ).map(|&x| x.clone())
+        self.flow
+            .first()
+            .iter()
+            .chain(self.tree.first().iter())
+            .min_by(|a, b| a.0.cmp(&b.0))
+            .map(|&x| x.clone())
     }
 }

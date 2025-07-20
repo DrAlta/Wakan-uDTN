@@ -1,30 +1,19 @@
 use macroquad::prelude::*;
 
+use super::BeepyNode;
 use crate::{
     frontends::util::{draw_directed_edges, draw_graph_nodes},
-    wakan::{BeepyPacket, Frontend, Time, WakamSim,},
+    wakan::{BeepyPacket, Frontend, Time, WakamSim},
 };
-use super::BeepyNode;
 
 impl Frontend for WakamSim<BeepyPacket, BeepyNode> {
     type Settings = (f32, f32, f32);
     const SETTINGS: Self::Settings = (7.0, 10.0, 0.0);
     async fn tick_sim(&mut self) {
         let (arrow_head_size, node_size, time_per_tick) = Self::SETTINGS;
-        tick_sim(
-            arrow_head_size,
-            node_size,
-            time_per_tick,
-            self,
-        )
-        .await
+        tick_sim(arrow_head_size, node_size, time_per_tick, self).await
     }
 }
-
-
-
-
-
 
 pub async fn tick_sim(
     arrow_head_size: f32,

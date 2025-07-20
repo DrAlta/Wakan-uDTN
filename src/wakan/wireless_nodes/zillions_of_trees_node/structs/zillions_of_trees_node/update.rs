@@ -4,78 +4,68 @@ use qol::logy;
 
 use crate::wakan::{NodeId, Time};
 
-use super::super::super::{MAX_AGE, ZillionsOfTreesNode};
+use super::super::super::{ZillionsOfTreesNode, MAX_AGE};
 
-impl ZillionsOfTreesNode{
-    pub fn update(
-        &mut self,
-        time: Time,
-    ) {
+impl ZillionsOfTreesNode {
+    pub fn update(&mut self, time: Time) {
         let mut gone_down = BTreeSet::new();
         let cutoff = time - MAX_AGE;
-        self.neighbors.retain(
-            |id, info|
-            {
-                if let Some((_, last_seen)) = info.find_last_seen() {
-                    if last_seen < &cutoff {
-                        gone_down.insert(id.clone());
-                        false
-                    } else {
-                        true
-                    }
-                } else {
+        self.neighbors.retain(|id, info| {
+            if let Some((_, last_seen)) = info.find_last_seen() {
+                if last_seen < &cutoff {
                     gone_down.insert(id.clone());
                     false
+                } else {
+                    true
                 }
+            } else {
+                gone_down.insert(id.clone());
+                false
             }
-        );
+        });
 
         let mut lower = BTreeSet::<NodeId>::new();
         let mut higher = BTreeSet::<NodeId>::new();
-         self.neighbors.iter().for_each(
-            |(neighbor_id, info)|
-            {
-                if neighbor_id.0 < self.id.0 {
-                    for nn in &info.flow {
-                        lower.insert(nn.clone());
-                    }
-                } else if neighbor_id.0 > self.id.0{
-                    for nn in &info.flow {
-                        higher.insert(nn.clone());
-                    }
-                } else {
-                    unreachable!("neighbor should be higher or lower than self")
+        self.neighbors.iter().for_each(|(neighbor_id, info)| {
+            if neighbor_id.0 < self.id.0 {
+                for nn in &info.flow {
+                    lower.insert(nn.clone());
                 }
+            } else if neighbor_id.0 > self.id.0 {
+                for nn in &info.flow {
+                    higher.insert(nn.clone());
+                }
+            } else {
+                unreachable!("neighbor should be higher or lower than self")
             }
-        );
+        });
 
         for (_neighbor_id, info) in &mut self.neighbors {
-            info.tree.retain(
-                |n| 
-                !(lower.contains(n) || higher.contains(n))
-            );
+            info.tree
+                .retain(|n| !(lower.contains(n) || higher.contains(n)));
         }
 
         // update who are tree neighbors are, these are neights tht we use to access ndes throu the tree
-        self.tree_neighbors = self.neighbors.iter().filter_map(
-            |(id, info)|
-            {
-                if info.tree.is_empty(){
+        self.tree_neighbors = self
+            .neighbors
+            .iter()
+            .filter_map(|(id, info)| {
+                if info.tree.is_empty() {
                     None
                 } else {
                     Some(id.clone())
                 }
-            }
-        ).collect();
+            })
+            .collect();
 
         // update who the priness of are cluster is
         let mut princess_inner = self.id.0;
         for tree_neighbor_id in &self.tree_neighbors {
             let Some(tree_neighbor_info) = self.neighbors.get(tree_neighbor_id) else {
-                continue
+                continue;
             };
 
-            if tree_neighbor_info.princess.0 < princess_inner{
+            if tree_neighbor_info.princess.0 < princess_inner {
                 princess_inner = tree_neighbor_info.princess.0;
             }
         }
@@ -89,7 +79,7 @@ impl ZillionsOfTreesNode{
         // update are tree parent
         // do we need to find a new parent
         let current_parent_invalid = if let Some(parent) = &self.parent_maybe {
-            gone_down.contains(parent) || ! self.tree_neighbors.contains(parent)
+            gone_down.contains(parent) || !self.tree_neighbors.contains(parent)
         } else {
             true
         };

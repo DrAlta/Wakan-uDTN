@@ -26,37 +26,36 @@
 fn main() {
     let gap = 1;
     let thinkness = 3;
-    for i in 0..(thinkness*2) -1  {
+    for i in 0..(thinkness * 2) - 1 {
         //print!("{}", (thinkness + 3) - i);
-        for _j in 0..((thinkness + 3) - i) +(gap * 2) {
+        for _j in 0..((thinkness + 3) - i) + (gap * 2) {
             print!(" ");
         }
         if i % 2 == 0 {
             print!("0");
-            for j in 1..(thinkness + (i/2))+gap {
+            for j in 1..(thinkness + (i / 2)) + gap {
                 print!("---{}", j);
             }
         } else {
-            for _j in 0..(thinkness + (i/2))+ gap {
+            for _j in 0..(thinkness + (i / 2)) + gap {
                 print!("/ \\ ");
             }
         }
         print!("\n")
     }
-    for i in 0..gap+1 {
-        for _ in 0..((gap*3)-i){
+    for i in 0..gap + 1 {
+        for _ in 0..((gap * 3) - i) {
             print!(" ");
         }
         if i % 2 == 0 {
             print!("/");
-            for _i in 0..thinkness-1 {
+            for _i in 0..thinkness - 1 {
                 print!(" \\ /");
             }
-            for _ in 0..5+(i*2) {
+            for _ in 0..5 + (i * 2) {
                 print!(" ");
             }
             print!("\\");
-
         }
         print!("\n");
     }

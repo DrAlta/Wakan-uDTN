@@ -1,10 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::wakan::{wireless_nodes::zillions_of_trees_node::structs::NeighborInfo, NodeId, Radio, Time};
+use crate::wakan::{
+    wireless_nodes::zillions_of_trees_node::structs::NeighborInfo, NodeId, Radio, Time,
+};
 
 use super::super::super::ZillionsOfTreesNode;
 
-impl ZillionsOfTreesNode{
+impl ZillionsOfTreesNode {
     pub fn handle_beacon(
         &mut self,
         neighbor_id: &NodeId,
@@ -12,7 +14,7 @@ impl ZillionsOfTreesNode{
         princess: &NodeId,
         recieved_time: Time,
         radio: &Radio,
-    ){
+    ) {
         let mut queen_inner = neighbor_id.0;
 
         let mut tree = BTreeSet::new();
@@ -31,7 +33,7 @@ impl ZillionsOfTreesNode{
                             tree.insert(x.clone());
                         }
                     }
-                } else if neighbor_id.0 > self.id.0  {
+                } else if neighbor_id.0 > self.id.0 {
                     for x in accessible_thru_neighbors_neighbor {
                         if x.0 < queen_inner {
                             queen_inner = x.0
@@ -54,13 +56,13 @@ impl ZillionsOfTreesNode{
             neighbor_info.tree = tree;
             neighbor_info.last_seen.insert(radio.clone(), recieved_time);
         } else {
-            let seen = BTreeMap::from([(radio.clone(),recieved_time)]);
-            let info = NeighborInfo{ 
+            let seen = BTreeMap::from([(radio.clone(), recieved_time)]);
+            let info = NeighborInfo {
                 queen: NodeId(queen_inner),
                 princess: princess.clone(),
-                flow, 
-                tree, 
-                first_seen: seen.clone(), 
+                flow,
+                tree,
+                first_seen: seen.clone(),
                 last_seen: seen,
             };
             self.neighbors.insert(neighbor_id.clone(), info);
