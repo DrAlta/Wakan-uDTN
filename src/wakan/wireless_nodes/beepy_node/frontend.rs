@@ -27,8 +27,8 @@ pub async fn tick_sim(
     loop {
         clear_background(WHITE);
 
-        draw_graph_nodes(node_size, sim.get_graph());
         draw_directed_edges(arrow_head_size, node_size, sim.get_graph());
+        draw_graph_nodes(node_size, sim.get_graph());
 
         time += get_frame_time();
         if time >= time_per_tick {
