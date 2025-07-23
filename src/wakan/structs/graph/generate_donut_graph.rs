@@ -280,13 +280,14 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         let mut start_id_of_next_row = start_id_of_gap + ((thinkness + thinkness) * ( gap + gap +1));
 
         for i in 0..thinkness {
-            start_id_of_next_row += side_length + (thinkness - i) - 1;
+            let length_of_this_row = side_length + (thinkness - i) - 1;
+            start_id_of_next_row += length_of_this_row;
             let y = ((gap + thinkness + gap + 1 + i) as f32 * y_spacing) + kerning.y as f32;
 
 
             let x_start = ((((side_length + gap) - (thinkness - i) +1) as f32 * 0.5) - 0.0) * spacing + kerning.x as f32;
 
-            for j in 0..side_length + (thinkness - i) - 1 {
+            for j in 0..length_of_this_row {
                 let x = x_start + (j as f32 * spacing);
 
                 let id = NodeId::from(node_id_counter);
@@ -305,9 +306,16 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row ),
                         ])
-                    } else {
-                        BTreeSet::new()
-                     //   unreachable!("j:{j}")
+                    } else if j < length_of_this_row - 1 {
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j - 1),
+                            NodeId::from(start_id_of_next_row + j),
+                        ])
+                    } else{
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j - 1),
+                        ])
+
                     }
                 };
                 println!("node {id} : {outbound_links:?}");
