@@ -34,7 +34,7 @@ pub fn draw_directed_edges<
                         head + (dir * (arrow_head_size + node_size)),
                     )
                 };
-                let arrow_point = offset + (perp * arrow_head_size);
+                let arrow_point = offset - (perp * arrow_head_size);
                 draw_triangle(arrow_tip, arrow_point, offset, RED);
                 draw_line(
                     node.x.into(),
