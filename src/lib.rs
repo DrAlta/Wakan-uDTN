@@ -1,5 +1,7 @@
 pub mod detect_cycles;
 pub mod frontends;
+mod size_expander;
+pub use size_expander::size_expander;
 mod time_on_air;
 pub use time_on_air::{Bandwidth, LoRa};
 pub mod gui;
