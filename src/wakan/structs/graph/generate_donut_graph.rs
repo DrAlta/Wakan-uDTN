@@ -40,10 +40,18 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 node_id_counter += 1;
                 let outbound_links = if i < thinkness - 1 {
                     logy!("debug", "i < thinkness-1");
-                    BTreeSet::from([
-                        NodeId::from(start_id_of_next_row + j),
-                        NodeId::from(start_id_of_next_row + j + 1),
-                    ])
+                    if j < side_length + i -1 {
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j),
+                            NodeId::from(start_id_of_next_row + j + 1),
+                            NodeId::from(id.0+1),
+                        ])
+                    } else {
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j),
+                            NodeId::from(start_id_of_next_row + j + 1),
+                        ])
+                    }
                 } else {
                     if j < thinkness - 1 {
                         logy!("debug", "j < thinkness - 1");
@@ -51,26 +59,39 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row + j),
                             NodeId::from(start_id_of_next_row + j + 1),
+                            NodeId::from(id.0 + 1),
                         ])
-                    } else if j > thinkness + gap - 1 {
-                        logy!("debug", "j > thinkness + gap");
+                    } else if j == thinkness - 1 {
+                        logy!("debug", "j == thinkness -1");
+                        BTreeSet::from([
+                            NodeId::from(start_id_of_next_row + j),
+                            NodeId::from(id.0 + 1),
+                        ])
+                    } else if j >= thinkness && j < thinkness + gap - 1 {
+                        logy!("debug", "{id}: >= thinkness && j < thinkness + gap - 1");
+                        BTreeSet::from([
+                            NodeId::from(id.0 + 1),
+                        ])
+                    } else if j == thinkness + gap - 1 {
+                        logy!("debug", "{id}: j == thinkness + gap - 1");
+                        BTreeSet::from([
+                            NodeId::from(id.0 + 1),
+                            NodeId::from(start_id_of_next_row + thinkness),
+                        ])
+                    } else if j > thinkness + gap - 1 && j < side_length + i - 1 {
+                        logy!("debug", "{id}: j > thinkness + gap - 1");
+                        BTreeSet::from([
+                            NodeId::from(id.0 + 1),
+                            NodeId::from(start_id_of_next_row - gap + j ),
+                            NodeId::from(start_id_of_next_row - gap + 1 + j),
+                        ])
+                    } else {
+                         logy!("debug", "{id}: else");
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row + j - gap),
                             NodeId::from(start_id_of_next_row + j + 1 - gap),
                         ])
-                    } else if j == thinkness - 1 {
-                        logy!("debug", "j == thinkness -1");
-                        BTreeSet::from([NodeId::from(start_id_of_next_row + j)])
-                    } else if j >= thinkness && j < thinkness + gap - 1 {
-                        logy!("debug", ">= thinkness && j < thinkness + gap - 1");
-                        BTreeSet::new()
-                    } else if j == thinkness + gap - 1 {
-                        logy!("debug", "j == thinkness + gap - 1");
-                        BTreeSet::from([NodeId::from(start_id_of_next_row + thinkness)])
-                    } else {
-                        //BTreeSet::new()
-                        unreachable!("j:{j}")
-                    }
+                   }
                 };
                 println!("node {id} : {outbound_links:?}");
                 raw_nodes.push(RawNode {
@@ -118,9 +139,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                     } else {
                         logy!("debug", "end of first half");
                         BTreeSet::from([
-                            NodeId::from(id.0-1),
                             NodeId::from(start_id_of_next_row + j),
-                        ])
+                            ])
                     }
                 } else {
                     if j < thinkness - 1 {
