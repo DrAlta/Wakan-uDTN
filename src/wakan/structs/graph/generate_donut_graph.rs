@@ -1,7 +1,7 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 use ghx_constrained_delaunay::types::Vertex as Point;
-use qol::logy;
+use qol::{logy, PushOrInsert};
 
 use crate::wakan::{Graph, NodeId, RawNode, WirelessNode};
 
@@ -391,6 +391,24 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             }
         }
 
+
+        let mut to_add: HashMap<NodeId, Vec<NodeId>> =  HashMap::new();
+        raw_nodes.iter()
+            .for_each(
+                |this| 
+                {
+                    for x in &this.outbound_links {
+                        to_add.push_or_insert(x.clone(), this.id.clone());
+                    }
+                }
+            );
+        for (node_id, neigbhor_ids) in to_add {
+            let x = raw_nodes.get_mut(node_id.0 as usize).unwrap();
+            assert_eq!(node_id.0, x.id.0);
+            for neighbor_id in neigbhor_ids {
+                x.outbound_links.insert(neighbor_id);
+            }
+        }
         Graph::from_raw_nodes(raw_nodes)
     }
 }
