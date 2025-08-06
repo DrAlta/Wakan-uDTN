@@ -1,3 +1,4 @@
+pub mod bubble_bucket;
 pub mod detect_cycles;
 pub mod frontends;
 mod size_expander;
