@@ -1,3 +1,4 @@
+/*
 //! Self-Stable Compact Minimum Stretch tree
 //! pronounced like 'scones' but with a 'm' instead of 'n'
 //!
@@ -59,6 +60,7 @@
 //! ** `number_of_shorst_paths from a to e that run thru b should be  NofSP(a,e) / NofSP(c,e)
 //! ** @ if b a short from a to c then b contribies a's contribution of shortest pathsto b + 1 to c @
 //! *** `b_contribution_to_c = if b_shorts_a_and_c {a_contribution_to_b + 1} else {0}`
+*/
 mod find_lowest_id_lowest_accessible_thru_neighbor;
 pub use find_lowest_id_lowest_accessible_thru_neighbor::find_lowest_id_lowest_accessible_thru_neighbor;
 mod gen_next_heartbeat_time;
