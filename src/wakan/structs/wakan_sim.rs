@@ -45,8 +45,6 @@ impl<
             .collect();
         let mut next_reception = None;
         let mut count_of_transmissions = 0;
-        let _ = &count_of_transmissions; // to get read of the lints about it being unused as it's only used currently by the feature that isn't a default feature
-                                         // Process up to 100 receptions per tick.
         let limit = i32::MAX;
         for i in 0..limit {
             if i == limit - 1 {
@@ -130,6 +128,8 @@ impl<
             };
             // add the number of transmissions to the count
             count_of_transmissions += new_transmissions.len();
+            let _ = &count_of_transmissions; // to get read of the lints about it being unused as it's only used currently by the feature that isn't a default feature
+                                            // Process up to 100 receptions per tick.
 
             let Some(coord) = graph.nodes_coord(&receiver) else {
                 logy!("error", "could get coord on node{receiver}");

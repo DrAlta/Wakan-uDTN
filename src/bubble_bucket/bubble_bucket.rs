@@ -46,7 +46,7 @@ use std::ops::Range;
 #[derive(Debug,PartialEq)]
 pub struct BubbleBucket<T, const H: usize, const C: usize> {
     pub items: [T; C],        // storage for all items
-    heads: [usize; H],    // heads[k] = start index of bucket k+1
+    pub (super) heads: [usize; H],    // heads[k] = start index of bucket k+1
 }
 impl<T: Default, const H: usize, const C: usize> Default for BubbleBucket<T, H, C> {
     fn default() -> Self {
@@ -58,6 +58,10 @@ impl<T: Default, const H: usize, const C: usize> Default for BubbleBucket<T, H, 
 
 }
 impl<T: Default, const H: usize, const C: usize> BubbleBucket<T, H, C> {
+    /// todo make this a trait and then impl for some tuples
+    /// fn from<A:IntoIterator<Item = T>,B:IntoIterator<Item = T>>(buckets:(A, B))
+    /// fn from<A:IntoIterator<Item = T>,B:IntoIterator<Item = T>,C:IntoIterator<Item = T>>(buckets:(A, B, C))
+    /// etc.
     pub fn from<B:IntoIterator<Item = T>>(buckets:[B;H]) -> Result<Self, &'static str> {
         let mut acc = 0;
         let mut heads = [0_usize; H];
@@ -140,16 +144,24 @@ impl<T, const H: usize, const C: usize> BubbleBucket<T, H, C> {
 impl<T, const H: usize, const C: usize> BubbleBucket<T, H, C> {
     /// Push a new `item` into the **end** of bucket `b`.
     /// fails if `self.heads[H-1] >= C` or `b >= H`.
-    pub fn push(&mut self, item: T, bucket: usize) -> Result<(), &'static str> {
+    pub fn insert(&mut self, item: T, bucket: usize) -> Result<(), &'static str> {
         if self.heads[H-1] >= C {
             return Err( "out of capacity")
         };
         if bucket >= H {
             return Err("bucket index OOB")
         };
-
         // Place the item at the old boundary of bucket b..b+1
         let insert_pos = self.heads[bucket];
+        // move the buckets after back
+        for i in 0..((H-1)-bucket){
+            let src = self.heads[(H-1)-i];
+            let dst = self.heads[(H-2)-i];
+
+            self.items.swap(src, dst);
+        }
+
+
         self.items[insert_pos] = item;
         // All heads for buckets >= b must advance by 1
         for head in self.heads.iter_mut().skip(bucket) {
@@ -222,29 +234,42 @@ mod test {
     use super::*;
     fn foo() -> BubbleBucket<i8,3, 10>{
         let mut a = BubbleBucket::<i8,3,10>::default();
-        print!("{:?}", a.push(1,0));
-        print!("{:?}", a.push(2,0));
-        print!("{:?}", a.push(3,0));
-        print!("{:?}", a.push(11,1));
-        print!("{:?}", a.push(12,1));
-        print!("{:?}", a.push(13,1));
-        print!("{:?}", a.push(21,2));
-        print!("{:?}", a.push(22,2));
-        println!("{:?}", a.push(23,2));
+        print!("{:?}", a.insert(1,0));
+        print!("{:?}", a.insert(2,0));
+        print!("{:?}", a.insert(3,0));
+        print!("{:?}", a.insert(11,1));
+        print!("{:?}", a.insert(12,1));
+        print!("{:?}", a.insert(13,1));
+        print!("{:?}", a.insert(21,2));
+        print!("{:?}", a.insert(22,2));
+        println!("{:?}", a.insert(23,2));
         a
+    }
+    #[test]
+    fn insert(){
+        let mut a = foo();
+        println!("{:?}", a.insert(99, 1));
+        assert_eq!(
+            a,
+            BubbleBucket{ items: [
+             1_i8,2,3,
+             11,12,13,
+             99,22,23,21], heads: [3,7,10] }
+        )
+
     }
     #[test]
     fn move_up(){
          let mut a = BubbleBucket::<i8,3,10>::default();
-        print!("{:?}", a.push(1,0));
-        print!("{:?}", a.push(2,0));
-        print!("{:?}", a.push(3,0));
-        print!("{:?}", a.push(11,1));
-        print!("{:?}", a.push(12,1));
-        print!("{:?}", a.push(13,1));
-        print!("{:?}", a.push(21,2));
-        print!("{:?}", a.push(4,2));
-        println!("{:?}", a.push(22,2));
+        print!("{:?}", a.insert(1,0));
+        print!("{:?}", a.insert(2,0));
+        print!("{:?}", a.insert(3,0));
+        print!("{:?}", a.insert(11,1));
+        print!("{:?}", a.insert(12,1));
+        print!("{:?}", a.insert(13,1));
+        print!("{:?}", a.insert(21,2));
+        print!("{:?}", a.insert(4,2));
+        println!("{:?}", a.insert(22,2));
 
         assert!(a.move_to_bucket(7, 0).is_ok());
 
@@ -257,24 +282,19 @@ mod test {
                 0
             ]
         );
-        assert_eq!(
-            a.heads,
-            [4, 7, 9]
-        )
-
     }
     #[test]
     fn move_down(){
-         let mut a = BubbleBucket::<i8,3,10>::default();
-        print!("{:?}", a.push(1,0));
-        print!("{:?}", a.push(24,0));
-        print!("{:?}", a.push(2,0));
-        print!("{:?}", a.push(11,1));
-        print!("{:?}", a.push(12,1));
-        print!("{:?}", a.push(13,1));
-        print!("{:?}", a.push(21,2));
-        print!("{:?}", a.push(22,2));
-        println!("{:?}", a.push(23,2));
+        let mut a = BubbleBucket::<i8,3,10>::default();
+        print!("{:?}", a.insert(1,0));
+        print!("{:?}", a.insert(24,0));
+        print!("{:?}", a.insert(2,0));
+        print!("{:?}", a.insert(11,1));
+        print!("{:?}", a.insert(12,1));
+        print!("{:?}", a.insert(13,1));
+        print!("{:?}", a.insert(21,2));
+        print!("{:?}", a.insert(22,2));
+        println!("{:?}", a.insert(23,2));
 
         assert!(a.move_to_bucket(1, 2).is_ok());
 

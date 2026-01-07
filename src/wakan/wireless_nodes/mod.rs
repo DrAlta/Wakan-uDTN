@@ -3,6 +3,8 @@
 //! ** is is parent tree with grandchildren that are with a lower id than itself
 mod beepy_node;
 pub use beepy_node::{BeepyNode, BeepyPacket};
+mod distributed_dict_node;
+pub use distributed_dict_node::{DistributedDictNode, DistributedDictPacket};
 mod flood_node;
 pub use flood_node::{FloodNode, FloodPacket};
 mod local_minimum_cluster_node;
