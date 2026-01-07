@@ -1,4 +1,9 @@
-use crate::wakan::{DistributedDictNode, wireless_nodes::distributed_dict_node::{LEVELS, NodeAddress, ROOT_SIZE, distributed_dict_node::Path}};
+use crate::wakan::{
+    wireless_nodes::distributed_dict_node::{
+        distributed_dict_node::Path, NodeAddress, LEVELS, ROOT_SIZE,
+    },
+    DistributedDictNode,
+};
 
 impl DistributedDictNode {
     /// Find the next Path toward `address` according to:

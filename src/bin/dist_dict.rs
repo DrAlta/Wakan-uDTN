@@ -46,10 +46,10 @@ fn main() {
     // Query
     if let Some(path) = node.find_next_path(0x0300_0000_0000_0003) {
         let first_hop = path.first_hop();
-        println!("Next hop toward target: {first_hop:?}", );
+        println!("Next hop toward target: {first_hop:?}",);
         /*
         if let Some(hop) = first_hop {
-        
+
             if node.neighbors.contains(&hop) {
                  println!("which is a neighbor");
             } else {

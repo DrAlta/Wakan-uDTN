@@ -1,6 +1,14 @@
-use std::{array, collections::{BTreeMap, BTreeSet}};
+use std::{
+    array,
+    collections::{BTreeMap, BTreeSet},
+};
 
-use crate::wakan::{DistributedDictNode, NodeId, wireless_nodes::distributed_dict_node::{DEFAULT_HOP_LIMIT, NodeAddress, StartOfAddressRange, distributed_dict_node::Block}};
+use crate::wakan::{
+    wireless_nodes::distributed_dict_node::{
+        distributed_dict_node::Block, NodeAddress, StartOfAddressRange, DEFAULT_HOP_LIMIT,
+    },
+    DistributedDictNode, NodeId,
+};
 
 impl DistributedDictNode {
     pub fn new(id: NodeId, _my_address: NodeAddress, canopy_start: StartOfAddressRange) -> Self {
@@ -9,9 +17,7 @@ impl DistributedDictNode {
             _my_address,
             neighbors: BTreeSet::new(),
             root: array::from_fn(|_| Block::default()),
-            levels: array::from_fn(|_| {
-                array::from_fn(|_| (0u64, Block::default()))
-            }),
+            levels: array::from_fn(|_| array::from_fn(|_| (0u64, Block::default()))),
             canopy: canopy_start,
             tracked_nodes: BTreeMap::new(),
             hop_limit: DEFAULT_HOP_LIMIT,

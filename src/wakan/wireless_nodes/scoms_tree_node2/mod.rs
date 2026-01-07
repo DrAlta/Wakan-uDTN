@@ -30,7 +30,7 @@
 //!
 //!   b   d
 //!  / \ / \
-//! a---c---e  
+//! a---c---e
 //!  c is shortest path from a to e
 //!  b isn't on shortst path from a to e
 //!
@@ -44,7 +44,7 @@
 //!
 //! ==================
 //!
-//!  
+//!
 //!
 //! a---b---c---d---e
 //!  c is shortest path from a to e

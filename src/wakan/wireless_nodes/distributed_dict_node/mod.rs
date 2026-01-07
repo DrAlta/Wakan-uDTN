@@ -9,17 +9,16 @@ I'm still working on the intralevel routing. nodes should keep tack of nodes tha
 
 my idea was that is doesn't need to keep track of the full path to the nodes in the block just the path along nodes that keep track of that block to the closests one of those to the node which would keep track of the path from itself to the node
 
-this has the advantage as a node only needs minimum amount of memory to participate but if is does have more memory available to it is have use that additional memory to improve the routing by keeping track of more blocks 
+this has the advantage as a node only needs minimum amount of memory to participate but if is does have more memory available to it is have use that additional memory to improve the routing by keeping track of more blocks
 
 */
 
 //! mini version 4*4*4*4= 256
-//! 
+//!
 mod distributed_dict_node;
 pub use distributed_dict_node::DistributedDictNode;
 mod distributed_dict_packet;
 pub use distributed_dict_packet::DistributedDictPacket;
-
 
 // public
 pub type NodeAddress = u64;
@@ -30,7 +29,6 @@ type StartOfAddressRange = u64;
 const DEFAULT_HOP_LIMIT: u8 = 2;
 const HLU_SMOOTHING_NUMERATOR: u64 = 1;
 const HLU_SMOOTHING_DENOMINATOR: u64 = 10;
-
 
 const CROWN_SIZE: u64 = 128;
 const ROOT_SIZE: usize = 256;

@@ -1,4 +1,7 @@
-use crate::wakan::{DistributedDictNode, wireless_nodes::distributed_dict_node::{CROWN_SIZE, NodeAddress}};
+use crate::wakan::{
+    wireless_nodes::distributed_dict_node::{NodeAddress, CROWN_SIZE},
+    DistributedDictNode,
+};
 
 impl DistributedDictNode {
     /// Check whether an address falls inside this node's canopy range.
@@ -8,5 +11,4 @@ impl DistributedDictNode {
         let end = start.saturating_add(CROWN_SIZE);
         (start <= addr) && (addr < end)
     }
-
 }

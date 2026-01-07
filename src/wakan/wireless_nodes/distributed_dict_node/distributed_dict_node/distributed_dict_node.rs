@@ -1,35 +1,44 @@
-use std::{collections::{BTreeMap, BTreeSet}, rc::Rc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 
-use crate::wakan::{DistributedDictPacket, NodeId, Radio, RecievedTime, Time, Transmission, WirelessNode, wireless_nodes::distributed_dict_node::{LEVEL_BUCKETS, LEVELS, NodeAddress, ROOT_SIZE, StartOfAddressRange, distributed_dict_node::{Block, Path}}};
+use crate::wakan::{
+    wireless_nodes::distributed_dict_node::{
+        distributed_dict_node::{Block, Path},
+        NodeAddress, StartOfAddressRange, LEVELS, LEVEL_BUCKETS, ROOT_SIZE,
+    },
+    DistributedDictPacket, NodeId, Radio, RecievedTime, Time, Transmission, WirelessNode,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DistributedDictNode {
     //sim stuff
-    pub (super) id: NodeId,
+    pub(super) id: NodeId,
 
     // Dict stuff
-    pub (super) root: [Block; ROOT_SIZE],
-    pub (super) levels: [[(StartOfAddressRange, Block); LEVEL_BUCKETS]; LEVELS],
-    pub (super) canopy: StartOfAddressRange,
-    pub (super) tracked_nodes: BTreeMap<NodeAddress, Path>,
+    pub(super) root: [Block; ROOT_SIZE],
+    pub(super) levels: [[(StartOfAddressRange, Block); LEVEL_BUCKETS]; LEVELS],
+    pub(super) canopy: StartOfAddressRange,
+    pub(super) tracked_nodes: BTreeMap<NodeAddress, Path>,
 
     // Dict Update
-    pub (super) _my_address: NodeAddress,
+    pub(super) _my_address: NodeAddress,
     // A list of one-hop neighbors.
-    pub (super) neighbors: BTreeSet<NodeAddress>,
+    pub(super) neighbors: BTreeSet<NodeAddress>,
     // The current maximum number of hops for discovery messages.
-    pub (super) hop_limit: u8,
+    pub(super) hop_limit: u8,
     // Timestamp of the last received HLU packet that either increased or confirmed the hop_limit.
-    pub (super) last_hlu_received_time: Time,
+    pub(super) last_hlu_received_time: Time,
     // Timestamp of the last time this node broadcast an HLU packet.
-    pub (super) last_hlu_broadcast_time: Time,
+    pub(super) last_hlu_broadcast_time: Time,
     // EMA of receiving HLU packet that either increased or confirmed the hop_limit
-    pub (super) hlu_mean_interval: Time,
+    pub(super) hlu_mean_interval: Time,
     //  EMA of the squared differences from the mean.
-    pub (super) hlu_variance: u32,
+    pub(super) hlu_variance: u32,
 
-    pub (super) time_of_next_hlu_broadcast: Time,
-    pub (super) need_to_broadcast_hlu: bool,
+    pub(super) time_of_next_hlu_broadcast: Time,
+    pub(super) need_to_broadcast_hlu: bool,
     // station stuff
 }
 /*

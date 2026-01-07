@@ -20,7 +20,6 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         let side_length = thinkness + gap;
         // crate top(unto the gap)
         for i in 0..thinkness {
-
             let y = i as f32 * y_spacing + kerning.y as f32;
 
             let start_id_of_next_row = {
@@ -31,7 +30,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 acc
             };
 
-            let x_start = ((((side_length + gap) - (i)) as f32 * 0.5) - 0.0) * spacing + kerning.x as f32;
+            let x_start =
+                ((((side_length + gap) - (i)) as f32 * 0.5) - 0.0) * spacing + kerning.x as f32;
 
             for j in 0..side_length + i {
                 let x = x_start + (j as f32 * spacing);
@@ -40,11 +40,11 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 node_id_counter += 1;
                 let outbound_links = if i < thinkness - 1 {
                     logy!("trace-donut-links", "i < thinkness-1");
-                    if j < side_length + i -1 {
+                    if j < side_length + i - 1 {
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row + j),
                             NodeId::from(start_id_of_next_row + j + 1),
-                            NodeId::from(id.0+1),
+                            NodeId::from(id.0 + 1),
                         ])
                     } else {
                         BTreeSet::from([
@@ -68,10 +68,11 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                             NodeId::from(id.0 + 1),
                         ])
                     } else if j >= thinkness && j < thinkness + gap - 1 {
-                        logy!("trace-donut-links", "{id}: >= thinkness && j < thinkness + gap - 1");
-                        BTreeSet::from([
-                            NodeId::from(id.0 + 1),
-                        ])
+                        logy!(
+                            "trace-donut-links",
+                            "{id}: >= thinkness && j < thinkness + gap - 1"
+                        );
+                        BTreeSet::from([NodeId::from(id.0 + 1)])
                     } else if j == thinkness + gap - 1 {
                         logy!("trace-donut-links", "{id}: j == thinkness + gap - 1");
                         BTreeSet::from([
@@ -82,16 +83,16 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         logy!("trace-donut-links", "{id}: j > thinkness + gap - 1");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
-                            NodeId::from(start_id_of_next_row - gap + j ),
+                            NodeId::from(start_id_of_next_row - gap + j),
                             NodeId::from(start_id_of_next_row - gap + 1 + j),
                         ])
                     } else {
-                         logy!("trace-donut-links", "{id}: else");
+                        logy!("trace-donut-links", "{id}: else");
                         BTreeSet::from([
                             NodeId::from(start_id_of_next_row - gap + j),
                             NodeId::from(start_id_of_next_row + 1 - gap + j),
                         ])
-                   }
+                    }
                 };
                 logy!("trace-donut-links", "{id}: {outbound_links:?}");
                 raw_nodes.push(RawNode {
@@ -123,7 +124,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 let id = NodeId::from(node_id_counter);
                 node_id_counter += 1;
 
-                let outbound_links = if i == gap -1 {
+                let outbound_links = if i == gap - 1 {
                     // last row of top of gap
                     if j == 0 {
                         logy!("trace-donut-links", "{id}: start of first half");
@@ -132,8 +133,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                             NodeId::from(start_id_of_next_row),
                             NodeId::from(start_id_of_next_row + 1),
                         ])
-
-                    } else if j < thinkness -1 {
+                    } else if j < thinkness - 1 {
                         logy!("trace-donut-links", "{id}: j < thinkness -1");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
@@ -142,23 +142,19 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         ])
                     } else {
                         logy!("trace-donut-links", "{id}: end of first half");
-                        BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + j),
-                        ])
+                        BTreeSet::from([NodeId::from(start_id_of_next_row + j)])
                     }
                 } else {
                     if j < thinkness - 1 {
                         logy!("trace-donut-links", "{id}: j < thinkness - 1");
                         BTreeSet::from([
-                            NodeId::from(id.0  + 1),
+                            NodeId::from(id.0 + 1),
                             NodeId::from(start_id_of_next_row + j),
                             NodeId::from(start_id_of_next_row + 1 + j),
                         ])
                     } else {
                         logy!("trace-donut-links", "{id}: else");
-                        BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + j)
-                        ])
+                        BTreeSet::from([NodeId::from(start_id_of_next_row + j)])
                     }
                 };
                 logy!("trace-donut-links", "{id}: {outbound_links:?}");
@@ -176,15 +172,15 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 let id = NodeId::from(node_id_counter);
                 node_id_counter += 1;
 
-                let outbound_links = if i == gap -1 {
+                let outbound_links = if i == gap - 1 {
                     if j == 0 {
                         logy!("trace-donut-links", "{id}: the start of the second half");
                         BTreeSet::from([
-                                NodeId::from(id.0 + 1),
-                                NodeId::from(thinkness + start_id_of_next_row),
-                            ])                        
-                    } else if j > 0 && j < thinkness -1 {
-                    logy!("trace-donut-links", "{id}: the middle of the second half");
+                            NodeId::from(id.0 + 1),
+                            NodeId::from(thinkness + start_id_of_next_row),
+                        ])
+                    } else if j > 0 && j < thinkness - 1 {
+                        logy!("trace-donut-links", "{id}: the middle of the second half");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
                             NodeId::from(thinkness + start_id_of_next_row + j),
@@ -194,7 +190,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         logy!("trace-donut-links", "{id}:the end of the second half");
                         BTreeSet::from([
                             NodeId::from(thinkness + start_id_of_next_row + j),
-                            NodeId::from(thinkness + start_id_of_next_row - 1 + j) ,
+                            NodeId::from(thinkness + start_id_of_next_row - 1 + j),
                         ])
                     }
                 } else {
@@ -202,21 +198,19 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         logy!("trace-donut-links", "{id}: j == 0");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
-                            NodeId::from(start_id_of_next_row + thinkness ),
+                            NodeId::from(start_id_of_next_row + thinkness),
                         ])
                     } else if j == thinkness + thinkness {
                         logy!("trace-donut-links", "{id}: j == thinkness + thinkness");
-                        BTreeSet::from([
-                            NodeId::from(thinkness + start_id_of_next_row - 1 + j),
-                        ])
-                    } else  if j < thinkness - 1 {
+                        BTreeSet::from([NodeId::from(thinkness + start_id_of_next_row - 1 + j)])
+                    } else if j < thinkness - 1 {
                         logy!("trace-donut-links", "{id}: j < thinkness -1");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
                             NodeId::from(thinkness + start_id_of_next_row - 1 + j),
                             NodeId::from(thinkness + start_id_of_next_row + j),
                         ])
-                    } else{
+                    } else {
                         logy!("trace-donut-links", "{id}: else");
                         BTreeSet::from([
                             NodeId::from(thinkness + start_id_of_next_row - 1 + j),
@@ -224,7 +218,7 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                         ])
                     }
                 };
-                logy!("trace-donut-links","{id} : {outbound_links:?}");
+                logy!("trace-donut-links", "{id} : {outbound_links:?}");
 
                 raw_nodes.push(RawNode {
                     id,
@@ -234,21 +228,14 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 });
             }
         }
-        logy!{"debug", "end gap top"}
+        logy! {"debug", "end gap top"}
 
         // gap bottom
         for i in 0..gap + 1 {
-            let start_id_of_next_row = start_id_of_gap +((thinkness + thinkness) * (i +1+ gap));
+            let start_id_of_next_row = start_id_of_gap + ((thinkness + thinkness) * (i + 1 + gap));
             let y = ((gap + thinkness + i) as f32 * y_spacing) + kerning.y as f32;
-            let x_start = (
-                (
-                    (
-                        (
-                            side_length as f32  - (thinkness as f32 - i as f32)
-                        ) * 0.5 
-                    ) 
-                ) * spacing 
-            ) + kerning.x as f32;
+            let x_start = (((side_length as f32 - (thinkness as f32 - i as f32)) * 0.5) * spacing)
+                + kerning.x as f32;
             for j in 0..thinkness {
                 let x = x_start + (j as f32 * spacing);
 
@@ -256,26 +243,25 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 node_id_counter += 1;
 
                 let outbound_links = if j == 0 {
-                    logy!("trace-donut-links","{id}: j == 0");
-                    BTreeSet::from([
-                        NodeId::from(id.0 + 1),
-                        NodeId::from(start_id_of_next_row ),
-                    ])
-                } else if j < thinkness - 1{
-                    logy!("trace-donut-links","{id}: j < thinkness - 1");
+                    logy!("trace-donut-links", "{id}: j == 0");
+                    BTreeSet::from([NodeId::from(id.0 + 1), NodeId::from(start_id_of_next_row)])
+                } else if j < thinkness - 1 {
+                    logy!("trace-donut-links", "{id}: j < thinkness - 1");
                     BTreeSet::from([
                         NodeId::from(id.0 + 1),
                         NodeId::from(start_id_of_next_row + j),
-                        NodeId::from(start_id_of_next_row + j - 1)
+                        NodeId::from(start_id_of_next_row + j - 1),
                     ])
-                } else/* if j < thinkness - 1*/{
-                    logy!("trace-donut-links","{id}: else");
+                } else
+                /* if j < thinkness - 1*/
+                {
+                    logy!("trace-donut-links", "{id}: else");
                     BTreeSet::from([
                         NodeId::from(start_id_of_next_row + j),
-                        NodeId::from(start_id_of_next_row + j - 1)
+                        NodeId::from(start_id_of_next_row + j - 1),
                     ])
                 };
-                logy!("trace-donut-links","{id} : {outbound_links:?}");
+                logy!("trace-donut-links", "{id} : {outbound_links:?}");
 
                 raw_nodes.push(RawNode {
                     id,
@@ -285,37 +271,35 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                 });
             }
             for j in 0..thinkness {
-                let x = x_start + ((j + thinkness + gap + gap - i ) as f32 * spacing);
+                let x = x_start + ((j + thinkness + gap + gap - i) as f32 * spacing);
 
                 let id = NodeId::from(node_id_counter);
                 node_id_counter += 1;
 
-                let outbound_links = if i == thinkness  {
+                let outbound_links = if i == thinkness {
                     if j < thinkness - 1 {
-                        logy!("trace-donut-links","{id}: j < thinkness - 1");
+                        logy!("trace-donut-links", "{id}: j < thinkness - 1");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
                             NodeId::from(start_id_of_next_row + thinkness + gap + j - 1),
-                            NodeId::from(start_id_of_next_row + thinkness + gap + j)
+                            NodeId::from(start_id_of_next_row + thinkness + gap + j),
                         ])
-                    } else{
-                        logy!("trace-donut-links","{id}: else");
-                        BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + thinkness + gap + j - 1),
-                        ])
+                    } else {
+                        logy!("trace-donut-links", "{id}: else");
+                        BTreeSet::from([NodeId::from(
+                            start_id_of_next_row + thinkness + gap + j - 1,
+                        )])
                     }
-                }else{
-                    if j == thinkness - 1{
+                } else {
+                    if j == thinkness - 1 {
                         logy!("trace-donut-links", "j == thinkness - 1");
-                        BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + thinkness+ j)
-                        ])
+                        BTreeSet::from([NodeId::from(start_id_of_next_row + thinkness + j)])
                     } else {
                         logy!("trace-donut-links", "else");
                         BTreeSet::from([
                             NodeId::from(id.0 + 1),
                             NodeId::from(start_id_of_next_row + thinkness + j + 1),
-                            NodeId::from(start_id_of_next_row + thinkness + j)
+                            NodeId::from(start_id_of_next_row + thinkness + j),
                         ])
                     }
                 };
@@ -332,15 +316,17 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
         logy!("debug", "start bottom");
 
         // bottom
-        let mut start_id_of_next_row = start_id_of_gap + ((thinkness + thinkness) * ( gap + gap +1));
+        let mut start_id_of_next_row =
+            start_id_of_gap + ((thinkness + thinkness) * (gap + gap + 1));
 
         for i in 0..thinkness {
             let length_of_this_row = side_length + (thinkness - i) - 1;
             start_id_of_next_row += length_of_this_row;
             let y = ((gap + thinkness + gap + 1 + i) as f32 * y_spacing) + kerning.y as f32;
 
-
-            let x_start = ((((side_length + gap) - (thinkness - i) +1) as f32 * 0.5) - 0.0) * spacing + kerning.x as f32;
+            let x_start = ((((side_length + gap) - (thinkness - i) + 1) as f32 * 0.5) - 0.0)
+                * spacing
+                + kerning.x as f32;
 
             for j in 0..length_of_this_row {
                 let x = x_start + (j as f32 * spacing);
@@ -350,22 +336,17 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
 
                 let outbound_links = if i == thinkness - 1 {
                     logy!("trace-donut-links", "{id}: i == thinkness - 1");
-                    if j < length_of_this_row - 1{
+                    if j < length_of_this_row - 1 {
                         logy!("trace-donut-links", "{id}: j < length_of_this_row");
-                        BTreeSet::from([
-                             NodeId::from(id.0 + 1),
-                        ])
-                    } else{ 
+                        BTreeSet::from([NodeId::from(id.0 + 1)])
+                    } else {
                         logy!("trace-donut-links", "{id}: j else");
                         BTreeSet::new()
                     }
                 } else {
                     if j == 0 {
                         logy!("trace-donut-links", "{id}: j == 0");
-                        BTreeSet::from([
-                            NodeId::from(id.0 + 1),
-                            NodeId::from(start_id_of_next_row ),
-                        ])
+                        BTreeSet::from([NodeId::from(id.0 + 1), NodeId::from(start_id_of_next_row)])
                     } else if j < length_of_this_row - 1 {
                         logy!("trace-donut-links", "{id}: j < length_of_this_row - 1");
                         BTreeSet::from([
@@ -373,11 +354,8 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
                             NodeId::from(start_id_of_next_row + j - 1),
                             NodeId::from(start_id_of_next_row + j),
                         ])
-                    } else{
-                        BTreeSet::from([
-                            NodeId::from(start_id_of_next_row + j - 1),
-                        ])
-
+                    } else {
+                        BTreeSet::from([NodeId::from(start_id_of_next_row + j - 1)])
                     }
                 };
                 logy!("trace-donut-links", "{id}: {outbound_links:?}");
@@ -391,17 +369,12 @@ impl<P, N: WirelessNode<P>> Graph<P, N> {
             }
         }
 
-
-        let mut to_add: HashMap<NodeId, Vec<NodeId>> =  HashMap::new();
-        raw_nodes.iter()
-            .for_each(
-                |this| 
-                {
-                    for x in &this.outbound_links {
-                        to_add.push_or_insert(x.clone(), this.id.clone());
-                    }
-                }
-            );
+        let mut to_add: HashMap<NodeId, Vec<NodeId>> = HashMap::new();
+        raw_nodes.iter().for_each(|this| {
+            for x in &this.outbound_links {
+                to_add.push_or_insert(x.clone(), this.id.clone());
+            }
+        });
         for (node_id, neigbhor_ids) in to_add {
             let x = raw_nodes.get_mut(node_id.0 as usize).unwrap();
             assert_eq!(node_id.0, x.id.0);

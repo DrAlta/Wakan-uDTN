@@ -14,8 +14,8 @@ pub fn draw_graph_nodes<
         draw_circle(node.x.into(), node.y.into(), node_size, BLUE);
         draw_text(
             &format!("{}", node.id.0),
-            Into::<f32>::into(node.x) - node_size +(text_size /6.0),
-            Into::<f32>::into(node.y) + (node_size * 0.5) - (text_size /12.0),
+            Into::<f32>::into(node.x) - node_size + (text_size / 6.0),
+            Into::<f32>::into(node.y) + (node_size * 0.5) - (text_size / 12.0),
             text_size,
             BLACK,
         );

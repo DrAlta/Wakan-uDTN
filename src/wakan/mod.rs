@@ -7,9 +7,9 @@ mod traits;
 pub use traits::{Cluster, Frontend, Parent, WirelessNode};
 mod wireless_nodes;
 pub use wireless_nodes::{
-    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, DistributedDictNode, DistributedDictPacket, FloodNode, FloodPacket,
-    LocalMinimumClusterNode, LocalMinimumClusterPacket, WakanNode, WakanPacket,
-    ZillionsOfTreesNode,
+    scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, DistributedDictNode,
+    DistributedDictPacket, FloodNode, FloodPacket, LocalMinimumClusterNode,
+    LocalMinimumClusterPacket, WakanNode, WakanPacket, ZillionsOfTreesNode,
 };
 
 pub const SIM_SIZE: usize = 25;
