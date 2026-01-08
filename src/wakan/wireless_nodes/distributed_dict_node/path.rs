@@ -11,6 +11,9 @@ impl Path {
     pub fn new() -> Self {
         Self { hops: Vec::new() }
     }
+    pub fn from_raw(hops: Vec<NodeAddress>) -> Self {
+        Path { hops }
+    }
 
     pub fn push(&mut self, addr: NodeAddress) {
         self.hops.push(addr);

@@ -10,10 +10,10 @@ impl DistributedDict {
     /// 4. Fallback to root blocks and return a path if known.
     /// Returns Some(Path) when we can forward along a known intra-block chain,
     /// or None when the node is expected to be in our canopy but we have no record.
-    pub fn find_next_path(&self, address: NodeAddress) -> Option<Path> {
+    pub fn find_next_path(&self, address: NodeAddress) -> Option<&Path> {
         // 1) direct tracked path
         if let Some(path) = self.tracked_nodes.get(&address) {
-            return Some(path.clone());
+            return Some(path);
         }
 
         // 2) canopy check: if address is in canopy but not tracked, treat as offline
@@ -50,12 +50,14 @@ impl DistributedDict {
             if let Some(p) = root_block.get_path_to_a_owner(&self.tracked_nodes) {
                 return Some(p);
             }
+            /*
             // If no path known, but owners exist, we could return a Path with the owner as direct hop:
             if let Some(owner) = root_block.best_owner_by_xor(address) {
                 let mut p = Path::new();
                 p.push(owner);
                 return Some(p);
             }
+            */
         }
 
         // Nothing known

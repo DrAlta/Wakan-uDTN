@@ -19,10 +19,10 @@ impl Block {
 
     /// Return a Path to any owner that we already know about in `tracked_nodes`.
     /// We try owners in order and return the first Path we find in `tracked_nodes`.
-    pub fn get_path_to_a_owner(&self, tracked_nodes: &BTreeMap<NodeAddress, Path>) -> Option<Path> {
+    pub fn get_path_to_a_owner<'a, 'b>(&'a self, tracked_nodes: &'b BTreeMap<NodeAddress, Path>) -> Option<&'b Path> {
         for &owner in &self.owners {
             if let Some(path) = tracked_nodes.get(&owner) {
-                return Some(path.clone());
+                return Some(path);
             }
         }
         None
