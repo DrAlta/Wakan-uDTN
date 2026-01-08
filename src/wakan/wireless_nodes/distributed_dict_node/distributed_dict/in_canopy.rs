@@ -1,9 +1,8 @@
-use crate::wakan::{
-    wireless_nodes::distributed_dict_node::{NodeAddress, CROWN_SIZE},
-    DistributedDictNode,
+use crate::wakan::wireless_nodes::distributed_dict_node::{
+    DistributedDict, NodeAddress, CROWN_SIZE,
 };
 
-impl DistributedDictNode {
+impl DistributedDict {
     /// Check whether an address falls inside this node's canopy range.
     /// Adjust canopy size to your scheme; here we use 128 addresses as in your sketch.
     pub fn in_canopy(&self, addr: NodeAddress) -> bool {

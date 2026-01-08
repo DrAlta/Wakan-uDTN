@@ -6,12 +6,16 @@ pub use structs::{
 mod traits;
 pub use traits::{Cluster, Frontend, Parent, WirelessNode};
 mod wireless_nodes;
+//nodes amd packets
 pub use wireless_nodes::{
     scoms_tree_node1, scoms_tree_node2, BeepyNode, BeepyPacket, DistributedDictNode,
     DistributedDictPacket, FloodNode, FloodPacket, LocalMinimumClusterNode,
-    LocalMinimumClusterPacket, WakanNode, WakanPacket, ZillionsOfTreesNode,
+    LocalMinimumClusterPacket, VirtualVoteNode, VirtualVotePacket, WakanNode, WakanPacket,
+    ZillionsOfTreesNode, ZillionsOfTreesPacket,
 };
 
+// modules
+pub use wireless_nodes::{DistributedDict, HopLimitUpdate};
 pub const SIM_SIZE: usize = 25;
 
 pub type Time = u64;

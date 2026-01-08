@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use std::collections::BTreeMap;
 
-use super::super::NodeAddress;
+use super::NodeAddress;
 use super::Path;
 
 /// A Block holds the list of nodes that "keep track" of that block.

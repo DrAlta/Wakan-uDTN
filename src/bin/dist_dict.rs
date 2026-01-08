@@ -1,4 +1,3 @@
-use wakan_sim::wakan::{DistributedDictNode, NodeId};
 /*
 
 
@@ -38,10 +37,10 @@ impl Node {
 
 */
 
+use wakan_sim::wakan::DistributedDict;
+
 fn main() {
-    // Add to Cargo.toml: array_init = "2.0"
-    // Example usage
-    let node = DistributedDictNode::new(NodeId(0), 0x0100_0000_0000_0001, 0x0100_0000);
+    let node = DistributedDict::new(0x0100_0000);
 
     // Query
     if let Some(path) = node.find_next_path(0x0300_0000_0000_0003) {

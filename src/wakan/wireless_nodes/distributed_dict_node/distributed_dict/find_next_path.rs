@@ -1,11 +1,8 @@
-use crate::wakan::{
-    wireless_nodes::distributed_dict_node::{
-        distributed_dict_node::Path, NodeAddress, LEVELS, ROOT_SIZE,
-    },
-    DistributedDictNode,
+use crate::wakan::wireless_nodes::distributed_dict_node::{
+    DistributedDict, NodeAddress, Path, LEVELS, ROOT_SIZE,
 };
 
-impl DistributedDictNode {
+impl DistributedDict {
     /// Find the next Path toward `address` according to:
     /// 1. If we have a direct tracked path, return it.
     /// 2. If address is inside our canopy but not tracked, return None (node offline).

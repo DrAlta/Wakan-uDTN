@@ -1,4 +1,4 @@
-use super::super::NodeAddress;
+use super::NodeAddress;
 
 /// Path is the intra-block chain of nodes that keep track of a block.
 /// The first element (if any) is the next hop from this node.

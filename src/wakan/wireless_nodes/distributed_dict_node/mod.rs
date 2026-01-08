@@ -15,11 +15,18 @@ this has the advantage as a node only needs minimum amount of memory to particip
 
 //! mini version 4*4*4*4= 256
 //!
+mod block;
+pub use block::Block;
+mod distributed_dict;
+pub use distributed_dict::DistributedDict;
 mod distributed_dict_node;
 pub use distributed_dict_node::DistributedDictNode;
 mod distributed_dict_packet;
 pub use distributed_dict_packet::DistributedDictPacket;
-
+mod hop_limit_update;
+pub use hop_limit_update::HopLimitUpdate;
+mod path;
+pub use path::Path;
 // public
 pub type NodeAddress = u64;
 

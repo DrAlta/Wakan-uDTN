@@ -1,17 +1,26 @@
 #![allow(dead_code)]
 use crate::wakan::{
-    wireless_nodes::distributed_dict_node::{HLU_SMOOTHING_DENOMINATOR, HLU_SMOOTHING_NUMERATOR},
-    DistributedDictNode, Time,
+    wireless_nodes::distributed_dict_node::{
+        HopLimitUpdate, HLU_SMOOTHING_DENOMINATOR, HLU_SMOOTHING_NUMERATOR,
+    },
+    Time,
 };
 
-impl DistributedDictNode {
-    fn handle_hop_limit_update_packet(&mut self, requested_hop_limit: u8, now: Time) {
+type NeedToBroadcastHLU = bool;
+
+impl HopLimitUpdate {
+    fn handle_hop_limit_update_packet(
+        &mut self,
+        requested_hop_limit: u8,
+        now: Time,
+    ) -> NeedToBroadcastHLU {
         if requested_hop_limit < self.hop_limit {
-            return;
+            return false;
         }
 
+        // todo!("replave with with Welford algo, https://www.johndcook.com/blog/standard_deviation/ {:?}", {
         // update HLU rate satistics
-        let current_interval = now - self.last_hlu_received_time;
+        let current_interval = now - self.time_of_last_hlu_received;
 
         let diff = current_interval.abs_diff(self.hlu_mean_interval);
 
@@ -25,9 +34,10 @@ impl DistributedDictNode {
         if requested_hop_limit > self.hop_limit {
             // update hop_limit
             self.hop_limit = requested_hop_limit;
-            self.need_to_broadcast_hlu = true;
-        } else if now - self.last_hlu_broadcast_time > self.hlu_mean_interval {
-            self.need_to_broadcast_hlu = true;
+            return true;
+        } else if now - self.time_of_last_hlu_broadcast > self.hlu_mean_interval {
+            return true;
         }
+        return false;
     }
 }
